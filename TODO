@@ -1,0 +1,9 @@
+Focus on End of Day prices
+  - A list where all symbols are stored 
+  - store all data in a sqlite?
+    . http://www.pythoncentral.io/introduction-to-sqlite-in-python/
+  - find out how to get historical prices from google
+    . found http://trading.cheno.net/wp-content/uploads/2011/12/google.py
+  - 
+
+Focus on Intra day prices
