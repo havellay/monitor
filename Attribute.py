@@ -1,11 +1,19 @@
 class Attribute():
     self.name   = ''
+
     def get_name():
         return self.name
 
 class RSI(Attribute):
     self.name   = 'RSI'
+
     def calculate_RSI(Symbol):
-        # this is a dummy function to give an idea of how
-        # the code should look
         return None
+
+    def __str__(self):
+        return self.name
+
+# attribute_list has the names of defined attributes
+attribute_dict = {
+        'RSI': RSI,
+    }

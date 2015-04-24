@@ -1,5 +1,8 @@
 import from googlefinance import getQuotes as g_get_quotes
 
+# the following import statement might not work; check
+from db_comm import my_db_obj
+
 # there should be a list of symbols - a company that has >=1 reminder set for
 # it should be included in this list
 g_symbol_list = {}
@@ -33,3 +36,6 @@ class Symbol():
                 except urllib2.HTTPError:
                     print('{symbol} is invalid'.format(symbol=symbol))
         return query_symbol
+
+    def update_data(self):
+        get_db.
