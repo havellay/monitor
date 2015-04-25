@@ -5,18 +5,15 @@ class My_db_class():
     file_name = 'data\/mydb'
 
     def __init__(self):
-        return init_db()
+        self.db = sqlite3.connect(self.file_name)
+        return self.db
 
     def get_db(self):
         if db is None:
             init_db()
         return db
 
-    @staticmethod
-    def init_db(self):
-        if self.db is None:
-            self.db = sqlite3.connect(file_name)
-        return self.db
-
     def close_db():
+        # this is obselete. Use the 'with' keyword.
+# refer http://stackoverflow.com/questions/865115/how-do-i-correctly-clean-up-a-python-object
         return self.db.close()

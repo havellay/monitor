@@ -1,8 +1,12 @@
 class Attribute():
-    self.name   = ''
+    name    = ''
 
-    def get_name():
+    def get_name(self):
         return self.name
+
+    def calculate(self, symbol):
+        # base class knows nothing about calculate
+        return None
 
 class RSI(Attribute):
     self.name   = 'RSI'
@@ -12,6 +16,9 @@ class RSI(Attribute):
 
     def __str__(self):
         return self.name
+
+    def calculate(self, symbol):
+        pass
 
 # attribute_list has the names of defined attributes
 attribute_dict = {
