@@ -1,6 +1,6 @@
 import from googlefinance import getQuotes as g_get_quotes
 from Report import db
-from Attribute import attribute_dict
+from Attribute import attrib_dict as global_attrib_dict
 
 """
 There is a bit of redundancy wrt how many instances of the symbol strings
@@ -22,7 +22,7 @@ class Symbol():
     self.name       = ''    # There is probably no way of getting this
     self.g_symbol   = ''
     self.y_symbol   = ''
-    self.known_attrib_dict  = {}
+    self.symbols_attrib_dic  = {}
 
     def __init__(self, name='', g_symbol='', y_symbol=''):
         global g_symbol_dict, y_symbol_dict
@@ -66,15 +66,21 @@ class Symbol():
             and pass the symbol's object to it; it will get the prices
             and compute the attribute's values
         """
-        existing_attrib = self.known_attrib_dict.get(s_attrib)
+        existing_attrib = self.symbols_attrib_dic.get(s_attrib)
 
         if existing_attrib is None:
             new_attrib = attribute_dict.get(s_attrib)
             if new_attrib is None:
                 # This attribute hasn't been defined yet
             else:
-                self.known_attrib_dict[s_attrib] = new_attrib.calculate(self)
-                existing_attrib = self.known_attrib_dict.get(s_attrib)
+                self.symbols_attrib_dic[s_attrib] = new_attrib.calculate(
+                        symbol=self,
+                        options=new_attrib.options(
+                            period=1,
+                            param=10,
+                        )
+                    )
+                existing_attrib = self.symbols_attrib_dic.get(s_attrib)
                             # calculate() takes a symbol and returns the attribute
                             # instance
         return existing_attrib
