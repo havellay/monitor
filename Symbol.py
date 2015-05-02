@@ -19,69 +19,68 @@ symbol_dict   = g_symbol_dict   # Using g_symbol_dict as our go to dict
                                 # for now. This may have to change later
 
 class Symbol():
-    self.name       = ''    # There is probably no way of getting this
-    self.g_symbol   = ''
-    self.y_symbol   = ''
-    self.symbols_attrib_dic  = {}
+  self.name       = ''    # There is probably no way of getting this
+  self.g_symbol   = ''
+  self.y_symbol   = ''
+  self.symbols_attrib_dic  = {}
 
-    def __init__(self, name='', g_symbol='', y_symbol=''):
-        global g_symbol_dict, y_symbol_dict
+  def __init__(self, name='', g_symbol='', y_symbol=''):
+    global g_symbol_dict, y_symbol_dict
 
-        self.name       = name
-        self.g_symbol   = g_symbol
-        self.y_symbol   = y_symbol
+    self.name       = name
+    self.g_symbol   = g_symbol
+    self.y_symbol   = y_symbol
 
-        g_symbol_dict[g_symbol] = self
-        y_symbol_dict[y_symbol] = self
-        
-        return self
+    g_symbol_dict[g_symbol] = self
+    y_symbol_dict[y_symbol] = self
 
-    @staticmethod
-    def lookup_by_symbol(symbol='', service='g'):
-        symbol_dict = g_symbol_dict
+    return self
 
-        if service == 'y':
-            symbol_dict = y_symbol_dict
+  @staticmethod
+  def lookup_by_symbol(symbol='', service='g'):
+    symbol_dict = g_symbol_dict
 
-        query_symbol = symbol_dict.get(symbol)
-        if query_symbol is None:
-                try:
-                    if service == 'g':
-                        g_get_quotes(symbol)
-                    else:
-                        raise YahooError('Yahoo hasn\'t been implemented yet')
-                    query_symbol = symbol_dict[symbol] = Symbol(g_symbol=symbol)
-                except urllib2.HTTPError:
-                    print('{symbol} is invalid'.format(symbol=symbol))
-        return query_symbol
+    if service == 'y':
+      symbol_dict = y_symbol_dict
 
-    def get_attrib(self, s_attrib):
-        """
-        TODO : perform all dict gets in the right way. No more check if None
-                etc; instead find the recommended access method and replace
-        """
-        """
-        NOTE :
-         - attribute is a string, get the particular attribute object
-            and pass the symbol's object to it; it will get the prices
-            and compute the attribute's values
-        """
-        existing_attrib = self.symbols_attrib_dic.get(s_attrib)
+    query_symbol = symbol_dict.get(symbol)
+    if query_symbol is None:
+      try:
+        if service == 'g':
+          g_get_quotes(symbol)
+        else:
+          raise YahooError('Yahoo hasn\'t been implemented yet')
+          query_symbol = symbol_dict[symbol] = Symbol(g_symbol=symbol)
+      except urllib2.HTTPError:
+        print('{symbol} is invalid'.format(symbol=symbol))
+    return query_symbol
 
-        if existing_attrib is None:
-            new_attrib = attribute_dict.get(s_attrib)
-            if new_attrib is None:
-                # This attribute hasn't been defined yet
-            else:
-                self.symbols_attrib_dic[s_attrib] = new_attrib.calculate(
-                        symbol=self,
-                        options=new_attrib.options(
-                            period=1,
-                            param=10,
-                        )
-                    )
-                existing_attrib = self.symbols_attrib_dic.get(s_attrib)
-                            # calculate() takes a symbol and returns the attribute
-                            # instance
-        return existing_attrib
+  def get_attrib(self, s_attrib):
+    """
+    TODO : perform all dict gets in the right way. No more check if None
+            etc; instead find the recommended access method and replace
+    """
+    """
+    NOTE :
+     - attribute is a string, get the particular attribute object
+        and pass the symbol's object to it; it will get the prices
+        and compute the attribute's values
+    """
+    existing_attrib = self.symbols_attrib_dic.get(s_attrib)
 
+    if existing_attrib is None:
+      new_attrib = attribute_dict.get(s_attrib)
+        if new_attrib is None:
+          # This attribute hasn't been defined yet
+        else:
+          self.symbols_attrib_dic[s_attrib] = new_attrib.calculate(
+              symbol=self,
+              options=new_attrib.options(
+                  period=1,
+                  param=10,
+              )
+            )
+          existing_attrib = self.symbols_attrib_dic.get(s_attrib)
+                          # calculate() takes a symbol and returns the attribute
+                          # instance
+    return existing_attrib
