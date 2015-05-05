@@ -11,7 +11,8 @@ class Attribute():
     return None
 
 class RSI(Attribute):
-  name            = 'RSI'
+  root_name       = 'RSI'
+  name            = ''
   default_opts    = {}
   self.rsi_list   = []
 
@@ -30,9 +31,12 @@ class RSI(Attribute):
         self.default_opts['to_date'] - self.default_opts['date_delta']
       )
     self.name   = (
-        self.name+'period'+str(defaut_opts['period'])+
-        'param'+str(self.default_opts['param'])
+        self.name+'_period'+str(defaut_opts['period'])+
+        '_param'+str(self.default_opts['param'])
       )
+    # TODO : should call calculate right away : if not, then the
+    #   here indicating the from_date and to_date would be inaccurate
+    #   because the data would not have been calculated
     return None
 
   def __str__(self):
@@ -52,6 +56,9 @@ class RSI(Attribute):
     return opts
 
   def get_RSI(self, quotes, opts):
+    """ Returns a list of tuples
+      - each tuple is an RSI value [0] and a date [1]
+    """
     rsi_list    = []
     av_gain     = 0.0
     av_loss     = 0.0
@@ -95,21 +102,23 @@ class RSI(Attribute):
     # NOTE about attribute_known_for ... if attribute hasn't been calculated
     # at all yet, then available_from should be maximum possible date and
     # available_to should be minimum possible date
+    # 3 May : the above comment doesn't make sense; if the attribute is
+    # present in the list of attributes that the symbol knows, it means
+    # it has been calcualted at some point and has a valid from and to date
     if symbol.is_attribute_known(self.name):
       available_from, available_to = symbol.attribute_known_for(self.name)
-
       opts['from_date'] = (
           available_from if available_from < opts['from_date'] 
-          else opts['from_date']
+            else opts['from_date']
         )
-    opts['to_date'] = (
-        available_to if available_to > opts['to_date']
-          else opts['to_date']
+      opts['to_date']   = (
+          available_to if available_to > opts['to_date']
+            else opts['to_date']
         )
 
     # make sure that the data for the full duration that we are
     # interested in is available; if not, fetch it
-    # NOTE about get_quote() : 
+    # NOTE about get_quotes() : 
     #   we need quotes from date before 'from_date' as well to calculate
     #   RSI. This will be the case for other tools as well, this is the
     #   responsiblity of the attribute's code to fetch prices for all days
@@ -135,10 +144,20 @@ class RSI(Attribute):
         self.rsi_list = get_RSI(quotes_list[x:], opts)
         break
 
+    # need to write rsi_list to a file
+    symbol.write_attrib_to_file(self.name, rsi_list)
+
+    # override the default_opts with the from and to dates in opts
+    self.default_opts['from_date']  = opts['from_date']
+    self.default_opts['to_date']    = opts['to_date']
+
     return self
 
-# attrib_dict is used to access
+  def known_for(self):
+    return (self.default_opts['from_date'], self.default_opts['to_date'])
+
+# global_attrib_dict is used to access
 # the root definition of attributes
-attrib_dict = {
+global_attrib_dict = {
     'RSI': RSI,
   }

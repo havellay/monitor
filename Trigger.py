@@ -17,10 +17,11 @@ class Trigger():
     self.s_attribute  = attribute
     self.s_value      = value
     self.s_bias       = bias
-    return True
+    return None
 
   def __str__(self):
     return '{1} {2} {3} {4}'.format(s_symbol, s_attribute, s_value, s_bias)
 
   def is_triggered(self):
+    # global symbol_dict --> this may not be needed
     return symbol_dict.get(symbol).get_attrib(attribute).is_triggered(value, bias)

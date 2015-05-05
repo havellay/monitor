@@ -17,7 +17,7 @@ class Reminder():
     return True
 
   def is_triggered(self):
-    ret = True
     for t in self.trigger_list:
-      ret = ret and t.is_triggered()
-    return ret
+      if t.is_triggered() is False:
+        return False
+    return True
