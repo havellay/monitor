@@ -11,10 +11,10 @@ class Attribute():
     return None
 
 class RSI(Attribute):
-  root_name       = 'RSI'
-  name            = ''
-  default_opts    = {}
-  self.rsi_list   = []
+  root_name     = 'RSI'
+  name          = ''
+  default_opts  = {}
+  rsi_list      = []
 
   def __init__(self):
     """
@@ -31,7 +31,7 @@ class RSI(Attribute):
         self.default_opts['to_date'] - self.default_opts['date_delta']
       )
     self.name   = (
-        self.name+'_period'+str(defaut_opts['period'])+
+        self.name+'_period'+str(self.default_opts['period'])+
         '_param'+str(self.default_opts['param'])
       )
     # TODO : should call calculate right away : if not, then the
@@ -129,7 +129,7 @@ class RSI(Attribute):
     #   prices for.
     # - get_quotes() should return a list of tuples of the quotes and the
     #   date in string
-    data_from_date = opts.get('from_date') - timedelta(days=opts.get('param')) - 2
+    data_from_date = opts.get('from_date') - timedelta(days=(opts.get('param')-2))
     quotes_list = symbol.get_quotes(
         data_from_date,
         opts.get('to_date')
@@ -155,9 +155,3 @@ class RSI(Attribute):
 
   def known_for(self):
     return (self.default_opts['from_date'], self.default_opts['to_date'])
-
-# global_attrib_dict is used to access
-# the root definition of attributes
-global_attrib_dict = {
-    'RSI': RSI,
-  }

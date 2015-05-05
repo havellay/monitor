@@ -6,11 +6,11 @@ class Reminder():
    - A reminder is called triggered when all the triggers it
     contains are triggered / positive
   """
-  self.trigger_list   = []
+  trigger_list   = []
 
   def __init__(self, trigger_list=[]):
     self.trigger_list = trigger_list
-    return True
+    return None
 
   def add(self, trigger):
     self.trigger_list.append(trigger)

@@ -1,6 +1,6 @@
-import from googlefinance import getQuotes as g_get_quotes
-from Report import db, temp_db
-from Attribute import global_attrib_dict
+from googlefinance import getQuotes as g_get_quotes
+import Report
+import Global
 from db_comm import Queries
 from google import GoogleQuote
 
@@ -21,11 +21,11 @@ symbol_dict   = g_symbol_dict   # Using g_symbol_dict as our go to dict
                                 # for now. This may have to change later
 
 class Symbol():
-  self.name         = ''    # There is probably no way of getting this
-  self.g_symbol     = ''
-  self.y_symbol     = ''
-  self.attrib_dict  = {}
-  self.in_mem_db    = []
+  name         = ''    # There is probably no way of getting this
+  g_symbol     = ''
+  y_symbol     = ''
+  attrib_dict  = {}
+  in_mem_db    = []
 
   def __init__(self, name='', g_symbol='', y_symbol=''):
     global g_symbol_dict, y_symbol_dict
@@ -39,7 +39,7 @@ class Symbol():
     if y_symbol:
       y_symbol_dict[y_symbol] = self
 
-    return self
+    return None
 
   @staticmethod
   def lookup_by_symbol(symbol='', service='g'):
@@ -80,18 +80,19 @@ class Symbol():
 
     if existing_attrib is None:
       attrib_root_name  = s_attrib[0:s_attrib.index('_')]
-      new_attrib        = global_attrib_dict.get(attrib_root_name)()
-        if new_attrib is None:
-          # This attribute hasn't been defined yet
-        else:
-          self.attrib_dict[s_attrib] = new_attrib.calculate(
-              symbol=self,
-              options=new_attrib.options(
-                  period=1,
-                  param=10,
-                )
-            )
-          existing_attrib = self.attrib_dict.get(s_attrib)
+      new_attrib        = Global.globe.attrib_dict.get(attrib_root_name)()
+      if new_attrib is None:
+        # This attribute hasn't been defined yet
+        pass
+      else:
+        self.attrib_dict[s_attrib] = new_attrib.calculate(
+            symbol=self,
+            options=new_attrib.options(
+                period=1,
+                param=10,
+              )
+          )
+        existing_attrib = self.attrib_dict.get(s_attrib)
     return existing_attrib
 
   def is_attribute_known(self, s_attrib):
@@ -102,7 +103,7 @@ class Symbol():
 
   def get_quotes(self, from_date, to_date):
     # qdt_list -> quote_date_tuple_list
-    qdt_list, get_more, from_date, to_date = known_quotes(from_date, to_date)
+    qdt_list, get_more, from_date, to_date = self.known_quotes(from_date, to_date)
     if get_more is True:
       qdt_list.extend(ext_fetch_quotes(from_date, to_date))
     return qdt_list
@@ -112,7 +113,7 @@ class Symbol():
     get_more  = False
 
     # getting the file name that has the stock's quotes
-    cursor  = db.cursor()
+    cursor  = Global.globe.db.cursor()
     Queries.s_filename_f_quotetab_w_symbol_eq(cursor, self.name)
     quote_file_name = cursor.fetchone()
     quotes_rnc      = csv_into_rows_and_cols(file_name=quote_file_name)
@@ -164,7 +165,7 @@ class Symbol():
     new_quotes_rnc  = csv_into_rows_and_cols(data=new_quotes)
 
     # getting the file name that has the stock's quotes
-    cursor  = db.cursor()
+    cursor  = Global.globe.db.cursor()
     Queries.s_filename_f_quotetab_w_symbol_eq(cursor, self.name)
     quote_file_name     = cursor.fetchone()
 

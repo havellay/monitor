@@ -1,14 +1,9 @@
+import Global
 from db_comm import My_db_class
 from Users import Users
-
-# Globals
-db_obj      = None
-db          = None
-db_filename = 'data/db'
-temp_db_obj = None
-temp_db     = None
-temp_db_loc = ':memory:'
-users       = None
+import Trigger
+import Reminder
+import Symbol
 
 class Report():
   report = []
@@ -19,7 +14,7 @@ class Report():
         of text from each; append to report
     """
     for name in list_of_names:
-      for rem in users.get_by_name(name).check_reminders():
+      for rem in Global.globe.users.get_by_name(name).check_reminders():
         self.report.append(rem.get_report_line())
     return None
 
@@ -30,28 +25,33 @@ def init():
   """
   NOTE :  initialize database
   """
-  global db_obj, db, users, db_filename
-  global temp_db_obj, temp_db, temp_db_loc
+  Global.globe = Global.Global()
 
-  db_obj  = My_db_class(db_filename)
-  db      = db_obj.get_db()
+  Global.globe.db_obj  = My_db_class(Global.globe.db_filename)
+  Global.globe.db      = Global.globe.db_obj.get_db()
 
-  temp_db_obj = My_db_class(temp_db_loc)
-  temp_db     = temp_db_obj.get_db()
+  Global.globe.temp_db_obj = My_db_class(Global.globe.temp_db_loc)
+  Global.globe.temp_db     = Global.globe.temp_db_obj.get_db()
 
   # initialize Users
-  users   = Users()
+  Global.globe.users   = Users()
   """
   TODO : Add some information here; need to add users etc.
   """
 
 def make_test_data():
   # add a user
-  users.add_user('hari')
+  Global.globe.users.add_user('hari')
+
+  # create a symbol
+  Symbol.Symbol(g_symbol='NSE:RELIANCE')
 
   # create a trigger
+  trigger   = Trigger.Trigger('NSE:RELIANCE', 'RSI_period1_param_10', '10', '+')
 
   # useing trigger, create a reminder
+  reminder  = Reminder.Reminder([trigger])
+  Global.globe.users.get_by_name('hari').add_reminder(reminder)
 
 # this is the entry point
 if __name__ == "__main__":
@@ -65,4 +65,4 @@ if __name__ == "__main__":
   print Report(list_of_names)
 
   # after everything is done
-  db_obj.close_db()
+  Global.globe.db_obj.close_db()
