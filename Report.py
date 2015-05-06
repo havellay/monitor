@@ -44,10 +44,10 @@ def make_test_data():
   Global.globe.users.add_user('hari')
 
   # create a symbol
-  Symbol.Symbol(g_symbol='NSE:RELIANCE')
+  Symbol.Symbol(name='RELIANCE.NS',y_symbol='RELIANCE.NS')
 
   # create a trigger
-  trigger   = Trigger.Trigger('NSE:RELIANCE', 'RSI_period1_param_10', '10', '+')
+  trigger   = Trigger.Trigger('RELIANCE.NS', 'RSI_period1_param_10', '10', '+')
 
   # useing trigger, create a reminder
   reminder  = Reminder.Reminder([trigger])
@@ -59,10 +59,10 @@ if __name__ == "__main__":
 
   make_test_data()
 
-  list_of_names = [
+  list_of_names_to_fetch_reports_for = [
       'hari',
     ]
-  print Report(list_of_names)
+  print Report(list_of_names_to_fetch_reports_for)
 
   # after everything is done
   Global.globe.db_obj.close_db()

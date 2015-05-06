@@ -91,4 +91,7 @@ if __name__ == '__main__':
 
   op = GoogleQuote('aapl','2011-01-01')             # download year to date Apple data
   print op                                          # print it out
+
+  op = GoogleQuote('RELIANCE', '2011-11-01')
+  print op
   

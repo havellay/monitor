@@ -145,7 +145,7 @@ class RSI(Attribute):
         break
 
     # need to write rsi_list to a file
-    symbol.write_attrib_to_file(self.name, rsi_list)
+    symbol.write_attrib_to_file(self.name, self.rsi_list)
 
     # override the default_opts with the from and to dates in opts
     self.default_opts['from_date']  = opts['from_date']

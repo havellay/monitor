@@ -1,8 +1,17 @@
+import cPickle as pickle
+import datetime
+
+from db_comm import Queries
+
+# google doesn't have historical prices of indian shares, Pity
 from googlefinance import getQuotes as g_get_quotes
+from google import GoogleQuote
+
+# yahoooooo
+from yahoo_finance import Share
+
 import Report
 import Global
-from db_comm import Queries
-from google import GoogleQuote
 
 """
 There is a bit of redundancy wrt how many instances of the symbol strings
@@ -17,7 +26,7 @@ another month's from another service should be possible and easy.
 g_symbol_dict = {}
 y_symbol_dict = {}
 
-symbol_dict   = g_symbol_dict   # Using g_symbol_dict as our go to dict
+symbol_dict   = y_symbol_dict   # Using g_symbol_dict as our go to dict
                                 # for now. This may have to change later
 
 class Symbol():
@@ -42,12 +51,12 @@ class Symbol():
     return None
 
   @staticmethod
-  def lookup_by_symbol(symbol='', service='g'):
+  def lookup_by_symbol(symbol='', service='y'):
     global symbol_dict
-    symbol_dict = g_symbol_dict
+    symbol_dict = y_symbol_dict
 
-    if service == 'y':
-      symbol_dict = y_symbol_dict
+    if service == 'g':
+      symbol_dict = g_symbol_dict
 
     query_symbol = symbol_dict.get(symbol)
 
@@ -56,8 +65,11 @@ class Symbol():
         if service == 'g':
           g_get_quotes(symbol)
         elif service == 'y':
-          raise Exception('Yahoo hasn\'t been implemented yet')
-        query_symbol = Symbol(g_symbol=symbol)
+          y_obj = Share(symbol)
+          if 'start' not in y_obj.get_info():
+            raise Exception('Given symbol doesn\'t exist in Yahoo finance')
+        # query_symbol = Symbol(g_symbol=symbol)
+        query_symbol = Symbol(y_symbol=symbol)
       except urllib2.HTTPError:
         print('{symbol} is invalid'.format(symbol=symbol))
       except Exception as e:
@@ -105,7 +117,7 @@ class Symbol():
     # qdt_list -> quote_date_tuple_list
     qdt_list, get_more, from_date, to_date = self.known_quotes(from_date, to_date)
     if get_more is True:
-      qdt_list.extend(ext_fetch_quotes(from_date, to_date))
+      qdt_list.extend(self.ext_fetch_quotes(from_date, to_date))
     return qdt_list
 
   def known_quotes(self, from_date, to_date):
@@ -116,15 +128,31 @@ class Symbol():
     cursor  = Global.globe.db.cursor()
     Queries.s_filename_f_quotetab_w_symbol_eq(cursor, self.name)
     quote_file_name = cursor.fetchone()
-    quotes_rnc      = csv_into_rows_and_cols(file_name=quote_file_name)
+
+    if not quote_file_name:
+      # no file representing this symbol exists now;
+      get_more  = True
+      return qdt_list, get_more, from_date, to_date
+
+    # prices will be stored in a pickle, read from the file
+    quotes_dict_list= pickle.load(open(quote_file_name,'r'))
+    # quotes_rnc      = csv_into_rows_and_cols(file_name=quote_file_name)
 
     for line in quotes_rnc:
       qdt_list.append((
-          line[6],                      # 0 : closing price
+          line.get('Close'),            # 0 : closing price
           datetime.datetime.strptime(   # 1 : date
-              line[1],'%Y-%m-%d'
+              line.get('Date'),'%Y-%m-%d'
             ).date(),
         ))
+
+    # for line in quotes_rnc:
+    # qdt_list.append((
+    #     line[6],                      # 0 : closing price
+    #     datetime.datetime.strptime(   # 1 : date
+    #         line[1],'%Y-%m-%d'
+    #       ).date(),
+    #   ))
 
     from_date_index = to_date_index = 0
 
@@ -157,40 +185,46 @@ class Symbol():
     qdt_list = []
 
     # fetch quotes from the Internet
-    new_quotes  = GoogleQuote(
-        self.g_symbol,
-        from_date.__str__(),
-        to_date.__str__()
-      )
-    new_quotes_rnc  = csv_into_rows_and_cols(data=new_quotes)
+    new_quotes  = Share(self.y_symbol).get_historical(
+                    from_date.__str__(), to_date.__str__())
+    # new_quotes  = GoogleQuote(
+    #     self.g_symbol,
+    #     from_date.__str__(),
+    #     to_date.__str__()
+    #   )
+    # new_quotes_rnc  = csv_into_rows_and_cols(data=new_quotes)
 
     # getting the file name that has the stock's quotes
     cursor  = Global.globe.db.cursor()
     Queries.s_filename_f_quotetab_w_symbol_eq(cursor, self.name)
     quote_file_name     = cursor.fetchone()
 
-    # read stuff from the file
-    existing_quotes_rnc = csv_into_rows_and_cols(file_name=quote_file_name)
+    existing_quotes = []
+    if quote_file_name:
+      # read stuff from the file
+      # existing_quotes_rnc.extend(
+      #             csv_into_rows_and_cols(file_name=quote_file_name))
+      existing_quotes.extend(pickle.load(open(quote_file_name, 'r')))
+    else:
+      quote_file_name = 'data/'+self.y_symbol
 
     # merge with stuff fetched from the internet
-    merged_quotes_rnc   = merge_quotes_rnc(existing_quotes_rnc, new_quotes_rnc)
+    merged_quotes = merge_quotes(existing_quotes, new_quotes)
 
-    merged_quotes_r     = []
-    # overwrite existing file
-    for x in xrange(len(merged_quotes_rnc)):
-      merged_quotes_r.append(','.join(merged_quotes_rnc[x]))
+    # merged_quotes_r     = []
+    ## overwrite existing file
+    # for x in xrange(len(merged_quotes_rnc)):
+    #   merged_quotes_r.append(','.join(merged_quotes_rnc[x]))
 
-    merged_quotes_text  = '\n'.join(merged_quote_r)
+    # merged_quotes_text  = '\n'.join(merged_quote_r)
 
-    f = open(quote_file_name, 'w')
-    f.write(merged_quotes_text)
-    f.close()
+    pickle.dump(merged_quotes, open(quote_file_name,'w'))
 
-    for line in merged_quotes_rnc:
+    for line in merged_quotes:
       qdt_list.append((
-          line[6],                      # 0 : closing price
-          datetime.datetime.strptime(   # 1 : date
-              line[1],'%Y-%m-%d'
+          line.get('Close'),                # 0 : closing price
+          datetime.datetime.strptime(       # 1 : date
+              line.get('Date'),'%Y-%m-%d'
             ).date(),
         ))
 
@@ -198,27 +232,36 @@ class Symbol():
 
   def write_attrib_to_file(self, attrib_name, attrib_vals):
     file_name = self.name+'_'+attrib_name
-    pass
+    pickle.dump(attrib_vals, open(file_name, 'w'))
+    return None
 
 def csv_into_rows_and_cols(file_name=None, data=None):
   if file_name:
     f         = open(file_name, 'r')
-    contents  = f.read()
-  contents  = data or contents.split('\n')
-  for i in xrange(len(contents)):
-    contents[i] = contents[i].split(',')
-  return contents
+    data  = f.read()
+  data  = data or data.split('\n')
+  for i in xrange(len(data)):
+    data[i] = data[i].split(',')
+  return data
 
-def merge_quotes_rnc(qrnc_1, qrnc_2):
+def merge_quotes(qrnc_1, qrnc_2):
+  if len(qrnc_1) == 0:
+    return qrnc_2
   i = j = 0
   merged  = []
   for x in xrange(len(qrnc_1)+len(qrnc_2)):
-    date_qrnc_1 = datetime.datetime.strptime(qrnc_1[i][1],'%Y-%m-%d').date()
-    date_qrnc_2 = datetime.datetime.strptime(qrnc_2[i][1],'%Y-%m-%d').date()
+    date_qrnc_1 = datetime.datetime.strptime(
+                          qrnc_1[i]['Date'],'%Y-%m-%d').date()
+    date_qrnc_2 = datetime.datetime.strptime(
+                          qrnc_2[j]['Date'],'%Y-%m-%d').date()
     if date_qrnc_1 < date_qrnc_2:
       merged.extend([date_qrnc_1,date_qrnc_2])
+      i += 1
     elif date_qrnc_1 > date_qrnc_2:
       merged.extend([date_qrnc_2,date_qrnc_1])
+      j += 1
     else:
       merged.append(date_qrnc_1)
+      i += 1
+      j += 1
   return merged
