@@ -64,12 +64,12 @@ class Symbol():
       try:
         if service == 'g':
           g_get_quotes(symbol)
+          query_symbol  = Symbol(g_symbol=symbol)
         elif service == 'y':
           y_obj = Share(symbol)
           if 'start' not in y_obj.get_info():
             raise Exception('Given symbol doesn\'t exist in Yahoo finance')
-        # query_symbol = Symbol(g_symbol=symbol)
-        query_symbol = Symbol(y_symbol=symbol)
+          query_symbol  = Symbol(y_symbol=symbol)
       except urllib2.HTTPError:
         print('{symbol} is invalid'.format(symbol=symbol))
       except Exception as e:
@@ -135,8 +135,7 @@ class Symbol():
       return qdt_list, get_more, from_date, to_date
 
     # prices will be stored in a pickle, read from the file
-    quotes_dict_list= pickle.load(open(quote_file_name,'r'))
-    # quotes_rnc      = csv_into_rows_and_cols(file_name=quote_file_name)
+    quotes_dict_list= pickle.load(open(quote_file_name+'.pickle','r'))
 
     for line in quotes_rnc:
       qdt_list.append((
@@ -145,14 +144,6 @@ class Symbol():
               line.get('Date'),'%Y-%m-%d'
             ).date(),
         ))
-
-    # for line in quotes_rnc:
-    # qdt_list.append((
-    #     line[6],                      # 0 : closing price
-    #     datetime.datetime.strptime(   # 1 : date
-    #         line[1],'%Y-%m-%d'
-    #       ).date(),
-    #   ))
 
     from_date_index = to_date_index = 0
 
@@ -186,13 +177,7 @@ class Symbol():
 
     # fetch quotes from the Internet
     new_quotes  = Share(self.y_symbol).get_historical(
-                    from_date.__str__(), to_date.__str__())
-    # new_quotes  = GoogleQuote(
-    #     self.g_symbol,
-    #     from_date.__str__(),
-    #     to_date.__str__()
-    #   )
-    # new_quotes_rnc  = csv_into_rows_and_cols(data=new_quotes)
+                    from_date.__str__(), to_date.__str__())[::-1]
 
     # getting the file name that has the stock's quotes
     cursor  = Global.globe.db.cursor()
@@ -202,23 +187,14 @@ class Symbol():
     existing_quotes = []
     if quote_file_name:
       # read stuff from the file
-      # existing_quotes_rnc.extend(
-      #             csv_into_rows_and_cols(file_name=quote_file_name))
-      existing_quotes.extend(pickle.load(open(quote_file_name, 'r')))
+      existing_quotes.extend(pickle.load(open(quote_file_name+'.pickle', 'r')))
     else:
       quote_file_name = 'data/'+self.y_symbol
 
     # merge with stuff fetched from the internet
     merged_quotes = merge_quotes(existing_quotes, new_quotes)
 
-    # merged_quotes_r     = []
-    ## overwrite existing file
-    # for x in xrange(len(merged_quotes_rnc)):
-    #   merged_quotes_r.append(','.join(merged_quotes_rnc[x]))
-
-    # merged_quotes_text  = '\n'.join(merged_quote_r)
-
-    pickle.dump(merged_quotes, open(quote_file_name,'w'))
+    pickle.dump(merged_quotes, open(quote_file_name+'.pickle','w'))
 
     for line in merged_quotes:
       qdt_list.append((
@@ -231,8 +207,8 @@ class Symbol():
     return qdt_list
 
   def write_attrib_to_file(self, attrib_name, attrib_vals):
-    file_name = self.name+'_'+attrib_name
-    pickle.dump(attrib_vals, open(file_name, 'w'))
+    file_name = 'data/'+self.name+'_'+attrib_name
+    pickle.dump(attrib_vals, open(file_name+'.pickle', 'w'))
     return None
 
 def csv_into_rows_and_cols(file_name=None, data=None):

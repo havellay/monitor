@@ -35,9 +35,6 @@ def init():
 
   # initialize Users
   Global.globe.users   = Users()
-  """
-  TODO : Add some information here; need to add users etc.
-  """
 
 def make_test_data():
   # add a user

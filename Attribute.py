@@ -64,7 +64,7 @@ class RSI(Attribute):
     av_loss     = 0.0
 
     for x in xrange(opts.get('param')):
-      quote_diff = quotes[x][0] - quotes[x-1][0]
+      quote_diff = float(quotes[x][0]) - float(quotes[x-1][0])
       if quote_diff > 0:
         av_gain += quote_diff
       else:
@@ -72,11 +72,11 @@ class RSI(Attribute):
 
     av_gain = 1.0 * av_gain / opts.get('param')
     av_loss = 1.0 * av_loss / opts.get('param')
-    rs  = av_gain / av_loss
+    rs  = av_gain / (-1*av_loss)
     rsi_list.append((100 - 100/(1+rs), quotes[opts.get('param')-1][1]))
 
     for x in xrange(opts.get('param'), len(quotes)):
-      quote_diff = quotes[x][0] - quotes[x-1][0]
+      quote_diff = float(quotes[x][0]) - float(quotes[x-1][0])
       if quote_diff > 0:
         av_gain = (1.0 * 
                 (av_gain * (opts.get('param') - 1) + quote_diff) 
@@ -85,8 +85,8 @@ class RSI(Attribute):
         av_loss = (1.0 *
                 (av_loss * (opts.get('param') - 1) + quote_diff)
                 / opts.get('param'))
-        rs = av_gain / av_loss
-        rsi_list.append((100 - 100/(1+rs), quotes[x][1]))
+      rs = av_gain / (-1*av_loss)
+      rsi_list.append((100 - 100/(1+rs), quotes[x][1]))
 
     return rsi_list
 
@@ -95,16 +95,8 @@ class RSI(Attribute):
     NOTE :
     - default is to try and calculate for a year
     """
-    # maybe should make sure that all necessary parameteres
-    #   are specified?
     opts = options or self.default_opts
 
-    # NOTE about attribute_known_for ... if attribute hasn't been calculated
-    # at all yet, then available_from should be maximum possible date and
-    # available_to should be minimum possible date
-    # 3 May : the above comment doesn't make sense; if the attribute is
-    # present in the list of attributes that the symbol knows, it means
-    # it has been calcualted at some point and has a valid from and to date
     if symbol.is_attribute_known(self.name):
       available_from, available_to = symbol.attribute_known_for(self.name)
       opts['from_date'] = (
@@ -116,33 +108,13 @@ class RSI(Attribute):
             else opts['to_date']
         )
 
-    # make sure that the data for the full duration that we are
-    # interested in is available; if not, fetch it
-    # NOTE about get_quotes() : 
-    #   we need quotes from date before 'from_date' as well to calculate
-    #   RSI. This will be the case for other tools as well, this is the
-    #   responsiblity of the attribute's code to fetch prices for all days
-    #   that it needs
-    #   also, get_quotes should return a list
-    # - The idea behind the '-2' in the following line is that we should
-    #   account for weekends when calculating the number of days to get
-    #   prices for.
-    # - get_quotes() should return a list of tuples of the quotes and the
-    #   date in string
     data_from_date = opts.get('from_date') - timedelta(days=(opts.get('param')-2))
     quotes_list = symbol.get_quotes(
         data_from_date,
         opts.get('to_date')
       )
 
-    start_processing = False
-    for x in xrange(len(quotes_list)):
-      if (not start_processing and
-          quotes_list[x][1] == data_from_date.today().strftime('%Y-%m-%d')):
-        start_processing = True
-      elif start_processing:
-        self.rsi_list = get_RSI(quotes_list[x:], opts)
-        break
+    self.rsi_list = self.get_RSI(quotes_list, opts)
 
     # need to write rsi_list to a file
     symbol.write_attrib_to_file(self.name, self.rsi_list)
@@ -155,3 +127,14 @@ class RSI(Attribute):
 
   def known_for(self):
     return (self.default_opts['from_date'], self.default_opts['to_date'])
+
+def plot_this(date_values_list):
+  import matplotlib.pyplot as plt
+  x_axis = []
+  y_axis = []
+  for y,x in date_values_list:
+    x_axis.append(x)
+    y_axis.append(y.__str__())
+  plt.plot(x_axis, y_axis)
+  plt.ylabel('RSI')
+  plt.show()
