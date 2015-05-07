@@ -64,3 +64,9 @@ scratch/
 
 # ctags file
 tags
+
+# data directory
+data/
+
+# set up scripts
+setup_scripts/
