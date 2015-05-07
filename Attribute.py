@@ -15,6 +15,7 @@ class RSI(Attribute):
   name          = ''
   default_opts  = {}
   rsi_list      = []
+  moving_avg    = 2     # 1 -> EMA, 2 -> SMA
 
   def __init__(self):
     """
@@ -63,6 +64,11 @@ class RSI(Attribute):
     av_gain     = 0.0
     av_loss     = 0.0
 
+    if self.moving_avg == 1:
+      multiplier  = (2.0/(opts.get('param')+1))
+    else:
+      multiplier  = 1.0/opts.get('param')
+
     for x in xrange(opts.get('param')):
       quote_diff = float(quotes[x][0]) - float(quotes[x-1][0])
       if quote_diff > 0:
@@ -78,13 +84,9 @@ class RSI(Attribute):
     for x in xrange(opts.get('param'), len(quotes)):
       quote_diff = float(quotes[x][0]) - float(quotes[x-1][0])
       if quote_diff > 0:
-        av_gain = (1.0 * 
-                (av_gain * (opts.get('param') - 1) + quote_diff) 
-                / opts.get('param'))
+        av_gain = multiplier*quote_diff + (1-multiplier)*av_gain
       else:
-        av_loss = (1.0 *
-                (av_loss * (opts.get('param') - 1) + quote_diff)
-                / opts.get('param'))
+        av_loss = multiplier*quote_diff + (1-multiplier)*av_loss
       rs = av_gain / (-1*av_loss)
       rsi_list.append((100 - 100/(1+rs), quotes[x][1]))
 
@@ -115,6 +117,8 @@ class RSI(Attribute):
       )
 
     self.rsi_list = self.get_RSI(quotes_list, opts)
+
+    plot_this(self.rsi_list)
 
     # need to write rsi_list to a file
     symbol.write_attrib_to_file(self.name, self.rsi_list)
