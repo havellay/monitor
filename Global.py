@@ -11,6 +11,7 @@ class Global():
  temp_db      = None
  temp_db_loc  = ':memory:'
  users        = None
+ thigns_to_plot = []
 
  def __init__(self):
    self.attrib_dict['RSI'] = Attribute.RSI

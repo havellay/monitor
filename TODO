@@ -6,10 +6,14 @@ common
 
 Focus on End of Day prices
   - send an email with the report that we have
+      can send emails only with a mail server that allows us to;
+      find a web host first
 
 Focus on Intra day prices
   - rework the existing end of day model
   - have an invocation flag to look at
-  - add a few etc methods to Symbol that get called based on this invocation flag
+  - add a few etc methods to Symbol that get called based on
+    this invocation flag
 
-design a deamon or something to constantly generate reports for a few users
+design a deamon or something to constantly generate reports for
+a few users

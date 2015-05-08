@@ -1,5 +1,7 @@
 from datetime import date, timedelta
 
+import Global
+
 class Attribute():
   def get_name(self):
     return None
@@ -109,7 +111,8 @@ class RSI(Attribute):
             else opts['to_date']
         )
 
-    data_from_date = opts.get('from_date') - timedelta(days=(opts.get('param')-2))
+    data_from_date = (opts.get('from_date')
+                        - timedelta(days=(opts.get('param')-2)))
     quotes_list = symbol.get_quotes(
         data_from_date,
         opts.get('to_date')
@@ -117,7 +120,7 @@ class RSI(Attribute):
 
     self.rsi_list = self.get_RSI(quotes_list, opts)
 
-    plot_this(self.rsi_list)
+    Global.globe.things_to_plot.append(self.rsi_list)
 
     # need to write rsi_list to a file
     symbol.write_attrib_to_file(self.name, self.rsi_list)
