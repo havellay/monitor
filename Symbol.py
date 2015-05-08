@@ -5,7 +5,7 @@ from db_comm import Queries
 
 # google doesn't have historical prices of indian shares, Pity
 from googlefinance import getQuotes as g_get_quotes
-from google import GoogleQuote
+# from google import GoogleQuote
 
 # yahoooooo
 from yahoo_finance import Share
