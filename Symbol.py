@@ -26,7 +26,7 @@ another month's from another service should be possible and easy.
 g_symbol_dict = {}
 y_symbol_dict = {}
 
-symbol_dict   = y_symbol_dict   # Using g_symbol_dict as our go to dict
+symbol_dict   = y_symbol_dict   # Using y_symbol_dict as our go to dict
                                 # for now. This may have to change later
 
 class Symbol():
@@ -92,17 +92,14 @@ class Symbol():
 
     if existing_attrib is None:
       attrib_root_name  = s_attrib[0:s_attrib.index('_')]
+      attrib_options    = s_attrib[s_attrib.index('_')+1:]
       new_attrib        = Global.globe.attrib_dict.get(attrib_root_name)()
       if new_attrib is None:
-        # This attribute hasn't been defined yet
-        pass
+        raise Exception('This attribute hasn\'t been defined yet')
       else:
         self.attrib_dict[s_attrib] = new_attrib.calculate(
             symbol=self,
-            options=new_attrib.options(
-                period=1,
-                param=10,
-              )
+            options=new_attrib.options(attrib_options),
           )
         existing_attrib = self.attrib_dict.get(s_attrib)
     return existing_attrib

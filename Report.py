@@ -44,7 +44,7 @@ def make_test_data():
   Symbol.Symbol(name='RELIANCE.NS',y_symbol='RELIANCE.NS')
 
   # create a trigger
-  trigger   = Trigger.Trigger('RELIANCE.NS', 'RSI_period1_param_10', '10', '+')
+  trigger   = Trigger.Trigger('RELIANCE.NS', 'RSI_period_1_param_10', '50', '+')
 
   # useing trigger, create a reminder
   reminder  = Reminder.Reminder([trigger])

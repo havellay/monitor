@@ -1,13 +1,9 @@
 from datetime import date, timedelta
 
 class Attribute():
-  name    = ''
-
   def get_name(self):
-    return self.name
-
+    return None
   def calculate(self, symbol):
-    # base class knows nothing about calculate
     return None
 
 class RSI(Attribute):
@@ -15,7 +11,7 @@ class RSI(Attribute):
   name          = ''
   default_opts  = {}
   rsi_list      = []
-  moving_avg    = 2     # 1 -> EMA, 2 -> SMA
+  moving_avg    = 1     # 1 -> EMA, 2 -> SMA
 
   def __init__(self):
     """
@@ -32,8 +28,8 @@ class RSI(Attribute):
         self.default_opts['to_date'] - self.default_opts['date_delta']
       )
     self.name   = (
-        self.name+'_period'+str(self.default_opts['period'])+
-        '_param'+str(self.default_opts['param'])
+        self.name+'_period_'+str(self.default_opts['period'])+
+        '_param_'+str(self.default_opts['param'])
       )
     # TODO : should call calculate right away : if not, then the
     #   here indicating the from_date and to_date would be inaccurate
@@ -43,17 +39,20 @@ class RSI(Attribute):
   def __str__(self):
     return self.name
 
-  def options(
-      self, period=None, param=None, date_delta=None,
-      to_date=None, from_date=None
-    ):
-    opts = {}
-    opts['period']      = period    or self.default_opts['period']
-    opts['param']       = param     or self.default_opts['param']
-    opts['date_delta']  = date_delta or self.default_opts['date_delta']
-    opts['to_date']     = to_date   or self.default_opts['to_date']
-    opts['from_date']   = from_date or self.default_opts['from_date']
-
+  def options(self, options_str):
+    opts  = {}
+    list_of_opts_to_get = [
+        ('period', int),
+        ('param', int),
+        ('date_delta', date),
+        ('to_date', date),
+        ('from_date', date),
+      ]
+    for opt,typ in list_of_opts_to_get:
+      if opt in options_str:
+        opts[opt] = str_to_typ(get_param(options_str, opt),typ)
+      else:
+        opts[opt] = self.default_opts[opt]
     return opts
 
   def get_RSI(self, quotes, opts):
@@ -132,6 +131,16 @@ class RSI(Attribute):
   def known_for(self):
     return (self.default_opts['from_date'], self.default_opts['to_date'])
 
+  def is_triggered(self, trigger_val, bias):
+    trigger_val = float(trigger_val)
+    if bias == '+':
+      if self.rsi_list[-1][0] > trigger_val:
+        return (True, self.rsi_list[-1])
+    if bias == '-':
+      if self.rsi_list[-1][0] <= trigger_val:
+        return (True, self.rsi_list[-1])
+    return (False, 0)
+
 def plot_this(date_values_list):
   import matplotlib.pyplot as plt
   x_axis = []
@@ -139,6 +148,21 @@ def plot_this(date_values_list):
   for y,x in date_values_list:
     x_axis.append(x)
     y_axis.append(y.__str__())
-  plt.plot(x_axis, y_axis)
+  plt.plot(x_axis, y_axis,'b')
   plt.ylabel('RSI')
   plt.show()
+
+def get_param(opts_str, opt):
+  start_from  = opts_str.index(opt+'_')+len(opt+'_')
+  if '_' in opts_str[start_from:]:
+    end_at      = opts_str[start_from:].index('_')
+    return opts_str[start_from:start_from+end_at]
+  else:
+    return opts_str[start_from:]
+
+def str_to_typ(string, typ):
+  if typ is int:
+    return int(string)
+  elif typ is date:
+    return datetime.strptime(string, '%Y-%m-%d').date()
+  return None

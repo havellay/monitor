@@ -11,6 +11,7 @@ class Trigger():
   s_attribute  = ''
   s_value      = ''
   s_bias       = ''
+  f_current_val = 0
 
   def __init__(self, s_symbol, s_attribute, s_value, s_bias):
     self.s_symbol     = s_symbol
@@ -20,9 +21,16 @@ class Trigger():
     return None
 
   def __str__(self):
-    return '{1} {2} {3} {4}'.format(s_symbol, s_attribute, s_value, s_bias)
+    return '{0} {1} {2} {3} {4}'.format(
+        self.s_symbol, self.s_attribute,
+        self.s_value, self.s_bias, self.f_current_val
+      )
 
   def is_triggered(self):
     # global symbol_dict --> this may not be needed
-    return symbol_dict.get(self.s_symbol).get_attrib(
-        self.s_attribute).is_triggered(self.s_value, self.s_bias)
+    flag, self.f_current_val = symbol_dict.get(self.s_symbol).get_attrib(
+                  self.s_attribute).is_triggered(self.s_value, self.s_bias)
+    return flag
+
+  def get_report_line(self):
+    return self.__str__()

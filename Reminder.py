@@ -21,3 +21,9 @@ class Reminder():
       if t.is_triggered() is False:
         return False
     return True
+
+  def get_report_line(self):
+    report_line = []
+    for t in self.trigger_list:
+      report_line.append(t.get_report_line())
+    return report_line
