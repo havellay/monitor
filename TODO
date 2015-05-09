@@ -2,6 +2,7 @@ common
   - make a plot tool to overlay the prices and indicator
   - make some experiments to see effectivness of this thing
   - design a web-page for the data entry thing
+  - add more indicators
 
 Focus on End of Day prices
   - send an email with the report that we have
