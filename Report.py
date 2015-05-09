@@ -1,5 +1,6 @@
-import Global
 from db_comm import My_db_class
+
+import Global
 from Users import Users
 import Trigger
 import Reminder
@@ -44,7 +45,8 @@ def make_test_data():
   Symbol.Symbol(name='RELIANCE.NS',y_symbol='RELIANCE.NS')
 
   # create a trigger
-  trigger   = Trigger.Trigger('RELIANCE.NS', 'RSI_period_1_param_10', '50', '+')
+  trigger   = Trigger.Trigger('RELIANCE.NS',
+	            'RSI_period_1_param_10', '50', '+')
 
   # useing trigger, create a reminder
   reminder  = Reminder.Reminder([trigger])
@@ -60,6 +62,8 @@ if __name__ == "__main__":
       'hari',
     ]
   print Report(list_of_names_to_fetch_reports_for)
+
+  # plot from Global.globe.things_to_plot
 
   # after everything is done
   Global.globe.db_obj.close_db()
