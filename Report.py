@@ -45,12 +45,61 @@ def make_test_data():
   Symbol.Symbol(name='RELIANCE.NS',y_symbol='RELIANCE.NS')
 
   # create a trigger
-  trigger   = Trigger.Trigger('RELIANCE.NS',
-	            'RSI_period_1_param_10', '50', '+')
+  trig1 = Trigger.Trigger(
+      'RELIANCE.NS', 'RSI_period_1_param_10', '50', '+'
+    )
+
+  trig2 = Trigger.Trigger(
+      'RELIANCE.NS', 'RSI_period_1_param_14', '50', '+'
+    )
+  trig3 = Trigger.Trigger(
+      'RELIANCE.NS', 'RSI_period_1_param_30', '50', '+'
+    )
 
   # useing trigger, create a reminder
-  reminder  = Reminder.Reminder([trigger])
+  reminder  = Reminder.Reminder([trig1, trig2, trig3])
   Global.globe.users.get_by_name('hari').add_reminder(reminder)
+
+def globe_plotter(plot_data):
+  """
+  plot_data is a list of lists; elements in
+  each list is a tuple of a date and a floating
+  value;
+  For now, imagine that the y-axis range of all
+  the lists are 0-100; TODO : we will have to
+  merge plots such as price and RSI in the
+  same graph
+  """
+  import matplotlib.pyplot as plt
+
+  colors = ['r', 'b', 'g']
+  longest_list  = 0
+
+  x_axis_list = []
+  y_axis_list = []
+
+  for i in xrange(len(plot_data)):
+    lst = plot_data[i]
+    x_axis  = []
+    y_axis  = []
+    longest_list  = (
+        longest_list
+        if len(plot_data[longest_list]) > len(lst)
+        else i
+      )
+    for y,x in lst:
+      x_axis.append(x)
+      y_axis.append(y)
+    x_axis_list.append(x_axis)
+    y_axis_list.append(y_axis)
+
+  for i in xrange(len(x_axis_list)):
+    plt.plot(x_axis_list[i], y_axis_list[i], colors[i])
+  plt.ylabel('Attribute')
+  plt.xlabel('Date')
+  plt.show()
+
+  return None
 
 # this is the entry point
 if __name__ == "__main__":
@@ -64,6 +113,7 @@ if __name__ == "__main__":
   print Report(list_of_names_to_fetch_reports_for)
 
   # plot from Global.globe.things_to_plot
+  globe_plotter(Global.globe.things_to_plot)
 
   # after everything is done
   Global.globe.db_obj.close_db()
