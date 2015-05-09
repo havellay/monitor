@@ -73,7 +73,6 @@ def globe_plotter(plot_data):
   import matplotlib.pyplot as plt
 
   colors = ['r', 'b', 'g']
-  longest_list  = 0
 
   x_axis_list = []
   y_axis_list = []
@@ -82,11 +81,6 @@ def globe_plotter(plot_data):
     lst = plot_data[i]
     x_axis  = []
     y_axis  = []
-    longest_list  = (
-        longest_list
-        if len(plot_data[longest_list]) > len(lst)
-        else i
-      )
     for y,x in lst:
       x_axis.append(x)
       y_axis.append(y)
@@ -95,6 +89,7 @@ def globe_plotter(plot_data):
 
   for i in xrange(len(x_axis_list)):
     plt.plot(x_axis_list[i], y_axis_list[i], colors[i])
+
   plt.ylabel('Attribute')
   plt.xlabel('Date')
   plt.show()

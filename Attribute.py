@@ -144,17 +144,6 @@ class RSI(Attribute):
         return (True, self.rsi_list[-1])
     return (False, 0)
 
-def plot_this(date_values_list):
-  import matplotlib.pyplot as plt
-  x_axis = []
-  y_axis = []
-  for y,x in date_values_list:
-    x_axis.append(x)
-    y_axis.append(y.__str__())
-  plt.plot(x_axis, y_axis,'b')
-  plt.ylabel('RSI')
-  plt.show()
-
 def get_param(opts_str, opt):
   start_from  = opts_str.index(opt+'_')+len(opt+'_')
   if '_' in opts_str[start_from:]:
