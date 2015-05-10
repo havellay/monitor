@@ -26,4 +26,3 @@ Think about storing prices and dates in two separate lists instead
 of a list of two element tuples
 
 issues :
-  - all attributes seem to have the same name

@@ -29,14 +29,17 @@ class RSI(Attribute):
     self.default_opts['from_date']   = (
         self.default_opts['to_date'] - self.default_opts['date_delta']
       )
-    self.name   = (
-        self.root_name+'_period_'+str(self.default_opts['period'])+
-        '_param_'+str(self.default_opts['param'])
-      )
-    # TODO : should call calculate right away : if not, then the
-    #   here indicating the from_date and to_date would be inaccurate
-    #   because the data would not have been calculated
+    self.update_name(self.default_opts)
+
     return None
+
+  def update_name(self, opts):
+    self.name   = (
+        self.root_name+
+          '_period_'+str(opts['period'])+
+          '_param_'+str(opts['param'])
+      )
+    return self.name
 
   def __str__(self):
     return self.name
@@ -99,6 +102,7 @@ class RSI(Attribute):
     - default is to try and calculate for a year
     """
     opts = options or self.default_opts
+    self.update_name(opts)
 
     if symbol.is_attribute_known(self.name):
       available_from, available_to = symbol.attribute_known_for(self.name)
