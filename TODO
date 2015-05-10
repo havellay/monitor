@@ -22,10 +22,8 @@ a few users
 be able to look at past data with current indicator and determine
 strength of a trigger. once that is done, try to train a ML algo
 
+Think about storing prices and dates in two separate lists instead
+of a list of two element tuples
+
 issues :
-  - a warning shown when plotting;
-      /usr/lib/python2.7/dist-packages/matplotlib/axes/_axes.py:476: UserWarning: No
-      labelled objects found
-      . Use label='...' kwarg on individual plots.
-        warnings.warn("No labelled objects found. "
   - all attributes seem to have the same name

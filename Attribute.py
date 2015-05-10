@@ -30,7 +30,7 @@ class RSI(Attribute):
         self.default_opts['to_date'] - self.default_opts['date_delta']
       )
     self.name   = (
-        self.name+'_period_'+str(self.default_opts['period'])+
+        self.root_name+'_period_'+str(self.default_opts['period'])+
         '_param_'+str(self.default_opts['param'])
       )
     # TODO : should call calculate right away : if not, then the
