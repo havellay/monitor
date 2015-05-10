@@ -120,7 +120,7 @@ class RSI(Attribute):
 
     self.rsi_list = self.get_RSI(quotes_list, opts)
 
-    Global.globe.things_to_plot.append(self.rsi_list)
+    Global.globe.things_to_plot.append((self.name, self.rsi_list))
 
     # need to write rsi_list to a file
     symbol.write_attrib_to_file(self.name, self.rsi_list)

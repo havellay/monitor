@@ -18,3 +18,14 @@ Focus on Intra day prices
 
 design a deamon or something to constantly generate reports for
 a few users
+
+be able to look at past data with current indicator and determine
+strength of a trigger. once that is done, try to train a ML algo
+
+issues :
+  - a warning shown when plotting;
+      /usr/lib/python2.7/dist-packages/matplotlib/axes/_axes.py:476: UserWarning: No
+      labelled objects found
+      . Use label='...' kwarg on individual plots.
+        warnings.warn("No labelled objects found. "
+  - all attributes seem to have the same name

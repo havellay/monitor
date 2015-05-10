@@ -60,6 +60,14 @@ def make_test_data():
   reminder  = Reminder.Reminder([trig1, trig2, trig3])
   Global.globe.users.get_by_name('hari').add_reminder(reminder)
 
+def xy_tuple_to_lists(lst_of_tuples):
+  x_list  = []
+  y_list  = []
+  for y,x in lst_of_tuples:
+    x_list.append(x)
+    y_list.append(y)
+  return x_list,y_list
+
 def globe_plotter(plot_data):
   """
   plot_data is a list of lists; elements in
@@ -70,28 +78,40 @@ def globe_plotter(plot_data):
   merge plots such as price and RSI in the
   same graph
   """
+  from mpl_toolkits.axes_grid1 import host_subplot
+  import mpl_toolkits.axisartist as AA
   import matplotlib.pyplot as plt
 
-  colors = ['r', 'b', 'g']
+  host  = host_subplot(111, axes_class=AA.Axes)
+  # plt.subplots_adjust(right=0.55)
 
-  x_axis_list = []
-  y_axis_list = []
+  host.set_xlabel('Date')             # strong assumption
+  host.set_ylabel(plot_data[0][0])    # name of the first plot
 
-  for i in xrange(len(plot_data)):
-    lst = plot_data[i]
-    x_axis  = []
-    y_axis  = []
-    for y,x in lst:
-      x_axis.append(x)
-      y_axis.append(y)
-    x_axis_list.append(x_axis)
-    y_axis_list.append(y_axis)
+  host_x_list, host_y_list = xy_tuple_to_lists(plot_data[0][1])
+  p1, = host.plot(host_x_list, host_y_list, label=plot_data[0][0])
+  host.axis['left'].label.set_color(p1.get_color())
 
-  for i in xrange(len(x_axis_list)):
-    plt.plot(x_axis_list[i], y_axis_list[i], colors[i])
+  if len(plot_data) > 1:
+    # par_p_list  = []
+    offset      = 60
+    for i in xrange(len(plot_data)-1):
+      par = host.twinx()
+      new_fixed_axis    = par.get_grid_helper().new_fixed_axis
+      par.axis['right'] = new_fixed_axis(loc='right',
+                                          axes=par,
+                                          offset=(offset*i,0))
+      par.axis['right'].toggle(all=True)
+      par.set_ylabel(plot_data[i+1][0])
+      par_x_list, par_y_list  = xy_tuple_to_lists(plot_data[i+1][1])
+      p, = par.plot(par_x_list, par_y_list, label=plot_data[i+1][0])
+      par.axis['right'].label.set_color(p.get_color())
+      # par_p_list.append((par, p))
 
-  plt.ylabel('Attribute')
-  plt.xlabel('Date')
+  host.legend()
+  host.grid()
+
+  plt.draw()
   plt.show()
 
   return None
