@@ -8,6 +8,45 @@ class Attribute():
   def calculate(self, symbol):
     return None
 
+class Price(Attribute):
+  root_name     = 'Price'
+  name          = 'Price_'
+  default_opts  = {}
+  price_list    = []
+
+  def __init__(self):
+    self.default_opts['date_delta']  = timedelta(weeks=52)   # 52 weeks
+    self.default_opts['to_date']     = date.today()
+    self.default_opts['from_date']   = (
+        self.default_opts['to_date'] - self.default_opts['date_delta']
+      )
+    return None
+
+  def __str__(self):
+    return self.name
+
+  def options(self, x):
+    return None
+
+  def calculate(self, symbol=None, options=None):
+    quotes_list = symbol.get_quotes(
+        self.default_opts.get('from_date'),
+        self.default_opts.get('to_date')
+      )
+
+    self.price_list = quotes_list
+
+    Global.globe.things_to_plot.append((self.name, self.price_list))
+
+    return self
+
+  def is_triggered(self, trigger_val, bias):
+    return (True, 0)
+
+  def known_for(self):
+    return (self.default_opts['from_date'], self.default_opts['to_date'])
+
+
 class RSI(Attribute):
   root_name     = 'RSI'
   name          = ''

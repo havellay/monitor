@@ -15,4 +15,5 @@ class Global():
 
   def __init__(self):
     self.attrib_dict['RSI'] = Attribute.RSI
+    self.attrib_dict['Price'] = Attribute.Price
     return None

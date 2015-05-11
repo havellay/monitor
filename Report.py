@@ -43,23 +43,38 @@ def make_test_data():
 
   # create a symbol
   Symbol.Symbol(name='RELIANCE.NS',y_symbol='RELIANCE.NS')
-  Symbol.Symbol(name='JUSTDIAL.BO',y_symbol='JUSTDIAL.BO')
-  Symbol.Symbol(name='SINTEX.NS',y_symbol='SINTEX.NS')
+  # Symbol.Symbol(name='JUSTDIAL.BO',y_symbol='JUSTDIAL.BO')
+  # Symbol.Symbol(name='SINTEX.NS',y_symbol='SINTEX.NS')
 
   # create a trigger
-  trig1 = Trigger.Trigger(
-      'RELIANCE.NS', 'RSI_period_1_param_10', '10', '+'
+  trigger_list  = [
+      Trigger.Trigger(
+          'RELIANCE.NS', 'RSI_period_1_param_10', '10', '+'
+        )
+    ]
+  trigger_list.append(
+      Trigger.Trigger(
+          'RELIANCE.NS', 'RSI_period_1_param_20', '10', '+'
+        )
     )
-
-  trig2 = Trigger.Trigger(
-      'SINTEX.NS', 'RSI_period_1_param_14', '10', '+'
-    )
-  trig3 = Trigger.Trigger(
-      'JUSTDIAL.BO', 'RSI_period_1_param_30', '10', '+'
+  # trigger_list.append(
+  #     Trigger.Trigger(
+  #         'SINTEX.NS', 'RSI_period_1_param_14', '10', '+'
+  #       )
+  #   )
+  # trigger_list.append(
+  #     Trigger.Trigger(
+  #         'JUSTDIAL.BO', 'RSI_period_1_param_30', '10', '+'
+  #       )
+  #   )
+  trigger_list.append(
+      Trigger.Trigger(
+          'RELIANCE.NS', 'Price_', '10', '+'
+        )
     )
 
   # useing trigger, create a reminder
-  reminder  = Reminder.Reminder([trig1, trig2, trig3])
+  reminder  = Reminder.Reminder(trigger_list)
   Global.globe.users.get_by_name('hari').add_reminder(reminder)
 
 def xy_tuple_to_lists(lst_of_tuples):
@@ -68,6 +83,7 @@ def xy_tuple_to_lists(lst_of_tuples):
   max_y   = float('-inf')
   min_y   = float('inf')
   for y,x in lst_of_tuples:
+    y = float(y)
     max_y = max_y if max_y > y else y
     min_y = min_y if min_y < y else y
     x_list.append(x)
