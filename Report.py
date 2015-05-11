@@ -43,17 +43,19 @@ def make_test_data():
 
   # create a symbol
   Symbol.Symbol(name='RELIANCE.NS',y_symbol='RELIANCE.NS')
+  Symbol.Symbol(name='JUSTDIAL.BO',y_symbol='JUSTDIAL.BO')
+  Symbol.Symbol(name='SINTEX.NS',y_symbol='SINTEX.NS')
 
   # create a trigger
   trig1 = Trigger.Trigger(
-      'RELIANCE.NS', 'RSI_period_1_param_10', '50', '+'
+      'RELIANCE.NS', 'RSI_period_1_param_10', '10', '+'
     )
 
   trig2 = Trigger.Trigger(
-      'RELIANCE.NS', 'RSI_period_1_param_14', '50', '+'
+      'SINTEX.NS', 'RSI_period_1_param_14', '10', '+'
     )
   trig3 = Trigger.Trigger(
-      'RELIANCE.NS', 'RSI_period_1_param_30', '50', '+'
+      'JUSTDIAL.BO', 'RSI_period_1_param_30', '10', '+'
     )
 
   # useing trigger, create a reminder

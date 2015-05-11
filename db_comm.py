@@ -7,6 +7,13 @@ class Queries():
     return cursor
 
   @staticmethod
+  def i_filename_symbol_i_quotetab(cursor, filename, s_symbol):
+    cursor.execute(
+        'INSERT INTO quotetab (symbol, filename) VALUES (?, ?)',
+        [s_symbol, filename]
+      )
+
+  @staticmethod
   def TMP_ct_SYMBOL_w_date_close(cursor, s_symbol):
     cursor.execute('CREATE TABLE ?(date DATE, close REAL)', [s_symbol])
     return cursor
