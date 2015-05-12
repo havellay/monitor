@@ -13,40 +13,24 @@ from yahoo_finance import Share
 import Report
 import Global
 
-"""
-There is a bit of redundancy wrt how many instances of the symbol strings
-exist (stored in an obj as well as used in dict etc.
-This is intentional. For now, this gives better design to use either Google
-or Yahoo when fetching prices. This may change in the future.
-The idea is that we don't differentiate the prices fetched from one service
-from those fetched from another. Having 1 months data from one service and
-another month's from another service should be possible and easy.
-"""
-
-g_symbol_dict = {}
-y_symbol_dict = {}
-
-symbol_dict   = y_symbol_dict   # Using y_symbol_dict as our go to dict
-                                # for now. This may have to change later
+symbol_dict = {}
 
 class Symbol():
-  name         = ''    # There is probably no way of getting this
-  g_symbol     = ''
-  y_symbol     = ''
-  attrib_dict  = {}
-  in_mem_db    = []
+  name        = ''    # There is probably no way of getting this
+  g_symbol    = ''
+  y_symbol    = ''
+  attrib_dict = {}
+  in_mem_db   = []
 
   def __init__(self, name='', g_symbol='', y_symbol=''):
-    global g_symbol_dict, y_symbol_dict
-
     self.name       = name
     self.g_symbol   = g_symbol
     self.y_symbol   = y_symbol
 
     if g_symbol:
-      g_symbol_dict[g_symbol] = self
+      symbol_dict[g_symbol] = self
     if y_symbol:
-      y_symbol_dict[y_symbol] = self
+      symbol_dict[y_symbol] = self
 
     return None
 
@@ -57,10 +41,6 @@ class Symbol():
     this method's purpose again
     """
     global symbol_dict
-    symbol_dict = y_symbol_dict
-
-    if service == 'g':
-      symbol_dict = g_symbol_dict
 
     query_symbol = symbol_dict.get(symbol)
 
