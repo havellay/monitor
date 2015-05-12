@@ -43,8 +43,6 @@ def make_test_data():
 
   # create a symbol
   Symbol.Symbol(name='RELIANCE.NS',y_symbol='RELIANCE.NS')
-  # Symbol.Symbol(name='JUSTDIAL.BO',y_symbol='JUSTDIAL.BO')
-  # Symbol.Symbol(name='SINTEX.NS',y_symbol='SINTEX.NS')
 
   # create a trigger
   trigger_list  = [
@@ -57,16 +55,6 @@ def make_test_data():
           'RELIANCE.NS', 'RSI_period_1_param_20', '10', '+'
         )
     )
-  # trigger_list.append(
-  #     Trigger.Trigger(
-  #         'SINTEX.NS', 'RSI_period_1_param_14', '10', '+'
-  #       )
-  #   )
-  # trigger_list.append(
-  #     Trigger.Trigger(
-  #         'JUSTDIAL.BO', 'RSI_period_1_param_30', '10', '+'
-  #       )
-  #   )
   trigger_list.append(
       Trigger.Trigger(
           'RELIANCE.NS', 'Price_', '10', '+'
@@ -106,7 +94,7 @@ def globe_plotter(plot_data):
 
   y_limit_raw = []
 
-  host  = host_subplot(111, axes_class=AA.Axes)
+  host  = host_subplot(211, axes_class=AA.Axes)
   # plt.subplots_adjust(right=0.55)
 
   host.set_xlabel('Date')             # strong assumption
