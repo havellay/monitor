@@ -3,56 +3,90 @@ import time
 
 from db_comm import My_db_class
 
-import Global
-import Trigger
-import Reminder
-import Symbol
+from Trigger import Trigger
+from Reminder import Reminder
+from Symbol import Symbol
 from Report import Report
-from plotter import globe_plotter
+from Plotter import Plotter
 from Users import Users
 
 def init():
   """
   NOTE :  initialize database
   """
-  Global.globe = Global.Global()
-
-  Global.globe.db_obj  = My_db_class(Global.globe.db_filename)
-  Global.globe.db      = Global.globe.db_obj.get_db()
-
-  Global.globe.temp_db_obj = My_db_class(Global.globe.temp_db_loc)
-  Global.globe.temp_db     = Global.globe.temp_db_obj.get_db()
+  My_db_class()
 
   # initialize Users
-  Global.globe.users   = Users()
+  Users()
 
 def make_test_data():
-  # add a user
-  Global.globe.users.add_user('hari')
-
+  #### ADDING USER AND TRIGGERS FOR EoD
+  Users.add_user('hari')
   # create a symbol
-  Symbol.Symbol(name='RELIANCE.NS',y_symbol='RELIANCE.NS')
-
+  Symbol(name='RELIANCE.NS',y_symbol='RELIANCE.NS')
   # create a trigger
-  trigger_list  = [
-      Trigger.Trigger(
-          'RELIANCE.NS', 'RSI_period_1_param_10', '10', '+'
-        )
-    ]
+  trigger_list  = []
   trigger_list.append(
-      Trigger.Trigger(
-          'RELIANCE.NS', 'RSI_period_1_param_20', '10', '+'
+      Trigger(
+          s_symbol='RELIANCE.NS',
+          s_attribute='RSI_period_1_param_10',
+          s_value='10',
+          s_bias='+',
         )
     )
   trigger_list.append(
-      Trigger.Trigger(
-          'RELIANCE.NS', 'Price_', '10', '+'
+      Trigger(
+          s_symbol='RELIANCE.NS',
+          s_attribute='RSI_period_1_param_20',
+          s_value='10',
+          s_bias='+',
         )
     )
-
+  trigger_list.append(
+      Trigger(
+          s_symbol='RELIANCE.NS',
+          s_attribute='Price_',
+          s_value='10',
+          s_bias='+',
+        )
+    )
   # useing trigger, create a reminder
-  reminder  = Reminder.Reminder(trigger_list)
-  Global.globe.users.get_by_name('hari').add_reminder(reminder)
+  reminder  = Reminder(trigger_list)
+  Users.get_by_name('hari').add_reminder(reminder)
+
+  #### ADDING USER AND TRIGGERS FOR intraday
+  Users.add_user('hari_intraday')
+  # create a symbol
+  Symbol(name='YELP',y_symbol='YELP')
+  # create a trigger
+  trigger_list  = []
+  trigger_list.append(
+      Trigger(
+          s_symbol='YELP',
+          s_attribute='RSI_period_1_param_10_symbolmode_intraday',
+          s_value='10',
+          s_bias='+',
+        )
+    )
+  trigger_list.append(
+      Trigger(
+          s_symbol='YELP',
+          s_attribute='RSI_period_1_param_20_symbolmode_intraday',
+          s_value='10',
+          s_bias='+',
+        )
+    )
+  trigger_list.append(
+      Trigger(
+          s_symbol='YELP',
+          s_attribute='Price_symbolmode_intraday',
+          s_value='10',
+          s_bias='+',
+        )
+    )
+  # useing trigger, create a reminder
+  reminder  = Reminder(trigger_list)
+  Users.get_by_name('hari_intraday').add_reminder(reminder)
 
 # this is the entry point
 if __name__ == "__main__":
@@ -68,23 +102,24 @@ if __name__ == "__main__":
     ]
 
   today2pm  = datetime.datetime.now().replace(
-      hour=14, minute=0,
+      hour=23, minute=0,
       second=0, microsecond=0
     )
 
+  """
   while datetime.datetime.now() < today2pm:
-    time.sleep(15)                  # sleep for 15 seconds
+    time.sleep(1)                  # sleep for 15 seconds
     print 'woke up at : {}'.format(time.ctime())
     print Report(list_of_names_to_fetch_intraday_reports_for)
     print 'sleeping at : {}'.format(time.ctime())
+  """
 
   # update the End-of-Day prices with intraday
   # wipe away intraday prices
 
   print Report(list_of_names_to_fetch_EoD_reports_for)
 
-  # plot from Global.globe.things_to_plot
-  globe_plotter(Global.globe.things_to_plot)
+  Plotter.globe_plotter(Plotter.get_plot_buffer())
 
   # after everything is done
-  Global.globe.db_obj.close_db()
+  My_db_class.close_db()

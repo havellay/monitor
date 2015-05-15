@@ -1,6 +1,6 @@
 import sqlite3
 
-class Queries():
+class Queries(object):
   @staticmethod
   def s_filename_f_quotetab_w_symbol_eq(cursor, s_symbol):
     cursor.execute('SELECT filename from quotetab where symbol=?',[s_symbol])
@@ -18,19 +18,26 @@ class Queries():
     cursor.execute('CREATE TABLE ?(date DATE, close REAL)', [s_symbol])
     return cursor
 
-class My_db_class():
-  db        = None
-  file_name = None
+class My_db_class(object):
+  db          = []
+  db_filename = 'data/db'
 
-  def __init__(self, file_name):
-    self.file_name  = file_name
-    self.db         = sqlite3.connect(self.file_name)
+  def __init__(self):
+    db = sqlite3.connect(self.db_filename)
+    self.db.append(db)
     return None
 
-  def get_db(self):
-    return self.db
+  @staticmethod
+  def change_db_filename(filename):
+    My_db_class.db_filename = filename
+    return None
 
-  def close_db(self):
+  @staticmethod
+  def get_db():
+    return My_db_class.db[0]
+
+  @staticmethod
+  def close_db():
     # this is obselete. Use the 'with' keyword.
 # refer http://stackoverflow.com/questions/865115/how-do-i-correctly-clean-up-a-python-object
-    return self.db.close()
+    return My_db_class.db[0].close()

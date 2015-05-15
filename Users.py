@@ -1,12 +1,9 @@
-class User():
-  uid         = 0
-  name        = ''
-  reminders   = []
-  email       = ''
-
+class User(object):
   def __init__(self, uid, name):
-    self.uid    = uid
-    self.name   = name
+    self.uid        = uid
+    self.name       = name
+    self.reminders  = []
+    self.email      = ''
     return None
 
   def update_email(self, email):
@@ -33,28 +30,31 @@ class User():
       ]
     return triggered
 
-class Users():
+
+class Users(object):
   user_list = []
   user_dict = {}
 
   def __init__(self):
-    # Nothing to do
     return None
 
-  def add_user(self, name):
-    nu = User(len(self.user_list), name)
-    self.user_list.append(nu)
-    self.user_dict[name] = nu
+  @staticmethod
+  def add_user(name):
+    nu = User(len(Users.user_list), name)
+    Users.user_list.append(nu)
+    Users.user_dict[name] = nu
     return nu
 
-  def get_by_uid(self, uid):
+  @staticmethod
+  def get_by_uid(uid):
     """
     TODO : Exception : uid could be an invalid index
     """
-    return user_list[uid]
+    return Users.user_list[uid]
 
-  def get_by_name(self, name):
+  @staticmethod
+  def get_by_name(name):
     """
     TODO : Exception : user with `name` may not exist
     """
-    return self.user_dict.get(name)
+    return Users.user_dict.get(name)

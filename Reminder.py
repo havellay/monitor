@@ -1,4 +1,4 @@
-class Reminder():
+class Reminder(object):
   """
   NOTE :
    - A reminder can contain a list of triggers
@@ -6,8 +6,6 @@ class Reminder():
    - A reminder is called triggered when all the triggers it
     contains are triggered / positive
   """
-  trigger_list   = []
-
   def __init__(self, trigger_list=[]):
     self.trigger_list = trigger_list
     return None

@@ -1,7 +1,7 @@
 import cPickle as pickle
 import datetime
 
-from db_comm import Queries
+from db_comm import Queries, My_db_class
 
 # google doesn't have historical prices of indian shares, Pity
 from googlefinance import getQuotes as g_get_quotes
@@ -11,38 +11,29 @@ from googlefinance import getQuotes as g_get_quotes
 from yahoo_finance import Share
 
 import Report
-import Global
+from Attribute import Attribute
+from Prices import Prices
 
-symbol_dict = {}
-
-class Symbol():
-  name        = ''    # There is probably no way of getting this
-  g_symbol    = ''
-  y_symbol    = ''
-  attrib_dict = {}
-  in_mem_db   = []
-  mode        = 1     # 1 -> EoD prices
-                      # 2 -> Intraday prices
-  yahoo_handle  = None
+class Symbol(object):
+  symbol_dict = {}
 
   def __init__(self, name='', g_symbol='', y_symbol=''):
-    self.name       = name
-    self.g_symbol   = g_symbol
-    self.y_symbol   = y_symbol
+    self.name         = name
+    self.g_symbol     = g_symbol
+    self.y_symbol     = y_symbol
+    self.attrib_dict  = {}
+    self.yahoo_handle = None
 
     if g_symbol:
-      symbol_dict[g_symbol] = self
+      Symbol.symbol_dict[g_symbol] = self
     if y_symbol:
-      symbol_dict[y_symbol] = self
+      Symbol.symbol_dict[y_symbol] = self
 
     return None
 
-  def set_mode(self, mode='EoD'):
-    if mode == 'EoD':
-      self.mode = 1
-    elif mode == 'Intraday':
-      self.mode = 2
-    return None
+  @staticmethod
+  def get_from_symbol_dict(string):
+    return Symbol.symbol_dict.get(string)
 
   @staticmethod
   def lookup_by_symbol(symbol='', service='y'):
@@ -50,9 +41,7 @@ class Symbol():
     TODO : Not calling this method anywhere now; think about
     this method's purpose again
     """
-    global symbol_dict
-
-    query_symbol = symbol_dict.get(symbol)
+    query_symbol = Symbol.symbol_dict.get(symbol)
 
     if query_symbol is None:
       try:
@@ -87,15 +76,16 @@ class Symbol():
     if existing_attrib is None:
       attrib_root_name  = s_attrib[0:s_attrib.index('_')]
       attrib_options    = s_attrib[s_attrib.index('_')+1:]
-      new_attrib        = Global.globe.attrib_dict.get(attrib_root_name)()
+      new_attrib        = Attribute.get_attrib_dict().get(attrib_root_name)()
+
       if new_attrib is None:
         raise Exception('This attribute hasn\'t been defined yet')
-      else:
-        self.attrib_dict[s_attrib] = new_attrib.calculate(
-            symbol=self,
-            options=new_attrib.options(attrib_options),
-          )
-        existing_attrib = self.attrib_dict.get(s_attrib)
+
+      new_attrib.options_from_str(attrib_options)
+      existing_attrib = self.attrib_dict[s_attrib] = new_attrib
+
+    existing_attrib.calculate(symbol=self)
+
     return existing_attrib
 
   def is_attribute_known(self, s_attrib):
@@ -104,28 +94,21 @@ class Symbol():
   def attribute_known_for(self, s_attrib):
     return self.attrib_dict.get(s_attrib).known_for()
 
-  def get_quotes(self, *arg):
-    if self.mode  == 1:
-      return self.get_EoD_quotes(*arg)
-    elif self.mode  == 2:
-      return self.get_intraday_quotes(*arg)
-    return None
-
   def get_intraday_quotes(self):
-    if not Global.globe.intraday_prices.get(self.name):
-      Global.globe.intraday_prices[self.name] = []
+    if not Prices.get_intraday_prices().get(self.name):
+      Prices.get_intraday_prices()[self.name] = []
 
-    price_list  = Global.globe.intraday_prices.get(self.name)
+    price_list  = Prices.get_intraday_prices().get(self.name)
     self.yahoo_handle = self.yahoo_handle or Share(self.y_symbol)
-    price = float(self.yahoo_handle.get_price())
+    price = float(self.yahoo_handle.get_price()) 
 
-    price_list.append(price)
+    price_list.append((price, len(price_list)))
     return price_list
 
-  def get_quotes(self, from_date, to_date):
+  def get_EoD_quotes(self, from_date, to_date):
     adding_new_quotes = False
     # getting the file name that has the stock's quotes
-    cursor  = Global.globe.db.cursor()
+    cursor  = My_db_class.get_db().cursor()
     Queries.s_filename_f_quotetab_w_symbol_eq(cursor, self.name)
     quote_file_name = cursor.fetchone()
 
@@ -134,7 +117,7 @@ class Symbol():
       qdt_list  = self.ext_fetch_quotes(from_date, to_date)
       pickle.dump(qdt_list, open(quote_file_name+'.pickle','w'))
       Queries.i_filename_symbol_i_quotetab(cursor, quote_file_name, self.name)
-      Global.globe.db.commit()
+      My_db_class.get_db().commit()
       return qdt_list
 
     quote_file_name,  = quote_file_name
