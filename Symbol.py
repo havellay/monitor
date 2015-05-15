@@ -21,6 +21,9 @@ class Symbol():
   y_symbol    = ''
   attrib_dict = {}
   in_mem_db   = []
+  mode        = 1     # 1 -> EoD prices
+                      # 2 -> Intraday prices
+  yahoo_handle  = None
 
   def __init__(self, name='', g_symbol='', y_symbol=''):
     self.name       = name
@@ -32,6 +35,13 @@ class Symbol():
     if y_symbol:
       symbol_dict[y_symbol] = self
 
+    return None
+
+  def set_mode(self, mode='EoD'):
+    if mode == 'EoD':
+      self.mode = 1
+    elif mode == 'Intraday':
+      self.mode = 2
     return None
 
   @staticmethod
@@ -55,6 +65,7 @@ class Symbol():
           if 'start' not in y_obj.get_info():
             raise Exception('Given symbol doesn\'t exist in Yahoo finance')
           query_symbol  = Symbol(y_symbol=symbol)
+          query_symbol.yahoo_handle = y_obj
       except urllib2.HTTPError:
         print('{symbol} is invalid'.format(symbol=symbol))
       except Exception as e:
@@ -66,8 +77,6 @@ class Symbol():
     """
     TODO : perform all dict gets in the right way. No more check if None
             etc; instead find the recommended access method and replace
-    """
-    """
     NOTE :
      - attribute is a string, get the particular attribute object
         and pass the symbol's object to it; it will get the prices
@@ -95,6 +104,24 @@ class Symbol():
   def attribute_known_for(self, s_attrib):
     return self.attrib_dict.get(s_attrib).known_for()
 
+  def get_quotes(self, *arg):
+    if self.mode  == 1:
+      return self.get_EoD_quotes(*arg)
+    elif self.mode  == 2:
+      return self.get_intraday_quotes(*arg)
+    return None
+
+  def get_intraday_quotes(self):
+    if not Global.globe.intraday_prices.get(self.name):
+      Global.globe.intraday_prices[self.name] = []
+
+    price_list  = Global.globe.intraday_prices.get(self.name)
+    self.yahoo_handle = self.yahoo_handle or Share(self.y_symbol)
+    price = float(self.yahoo_handle.get_price())
+
+    price_list.append(price)
+    return price_list
+
   def get_quotes(self, from_date, to_date):
     adding_new_quotes = False
     # getting the file name that has the stock's quotes
@@ -113,8 +140,6 @@ class Symbol():
     quote_file_name,  = quote_file_name
 
     qdt_list  = pickle.load(open(quote_file_name+'.pickle','r'))
-
-    # qdt_list  = pickled_dict_to_qdt_list(quotes_dict_list)
 
     if qdt_list[0][1] > from_date:
       adding_new_quotes = True
@@ -138,10 +163,11 @@ class Symbol():
           self.name)
       )
     # TODO : we are always getting the new prices; why
-    new_quotes  = Share(self.y_symbol).get_historical(
+    self.yahoo_handle = self.yahoo_handle or Share(self.y_symbol)
+    new_quotes  = self.yahoo_handle.get_historical(
                     from_date.__str__(), to_date.__str__())[::-1]
 
-    qdt_list  = ext_dict_to_qdt_list(new_quotes)
+    qdt_list    = ext_dict_to_qdt_list(new_quotes)
     
     return qdt_list
 
@@ -189,8 +215,8 @@ def ext_dict_to_qdt_list(ext_dict):
   qdt_list  = []
   for line in ext_dict:
     qdt_list.append((
-        line.get('Close'),            # 0 : closing price
-        datetime.datetime.strptime(   # 1 : date
+        float(line.get('Close')),       # 0 : closing price
+        datetime.datetime.strptime(     # 1 : date
             line.get('Date'),'%Y-%m-%d'
           ).date(),
       ))

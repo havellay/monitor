@@ -38,3 +38,5 @@ decouple Report.py - make it easier for user to execute for a
 given set of companies
 
 issues :
+  - Find out whether all calculated values are stored in files;
+    make sure they aren't being recalculated unnecessarily
