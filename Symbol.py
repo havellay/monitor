@@ -99,8 +99,12 @@ class Symbol(object):
       Prices.get_intraday_prices()[self.name] = []
 
     price_list  = Prices.get_intraday_prices().get(self.name)
-    self.yahoo_handle = self.yahoo_handle or Share(self.y_symbol)
-    price = float(self.yahoo_handle.get_price()) 
+    # self.yahoo_handle = self.yahoo_handle or Share(self.y_symbol)
+    # price = self.yahoo_handle.get_price()
+    # price = float(self.yahoo_handle.get_price()) 
+
+    from googlefinance import getQuotes
+    price = float(getQuotes(self.g_symbol)[0].get('LastTradePrice'))
 
     price_list.append((price, len(price_list)))
     return price_list

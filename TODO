@@ -37,6 +37,10 @@ of a list of two element tuples
 decouple Report.py - make it easier for user to execute for a
 given set of companies
 
+replace google and yahoo apis with http://devcartel.com/about ?
+
+when plotting RSI, make sure that max+min/2 = 50.
+
 issues :
   - Find out whether all calculated values are stored in files;
     make sure they aren't being recalculated unnecessarily

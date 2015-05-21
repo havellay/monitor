@@ -15,6 +15,15 @@ class Attribute(object):
     self.update_name()
     return self.opts
 
+  @staticmethod
+  def get_param(opts_str='', opt=None):
+    start_from  = opts_str.index(opt+'_')+len(opt+'_')
+    if '_' in opts_str[start_from:]:
+      end_at      = opts_str[start_from:].index('_')
+      return opts_str[start_from:start_from+end_at]
+    else:
+      return opts_str[start_from:]
+
 class Price(Attribute):
   root_name = 'Price'
   def __init__(self):
@@ -207,14 +216,6 @@ class RSI(Attribute):
         return (True, self.rsi_list[-1])
     return (False, 0)
 
-  @staticmethod
-  def get_param(opts_str='', opt=None):
-    start_from  = opts_str.index(opt+'_')+len(opt+'_')
-    if '_' in opts_str[start_from:]:
-      end_at      = opts_str[start_from:].index('_')
-      return opts_str[start_from:start_from+end_at]
-    else:
-      return opts_str[start_from:]
 
 def str_to_typ(string='', typ=None):
   if typ is int:
