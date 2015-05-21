@@ -1,5 +1,5 @@
 """
-Django settings for stock_man project.
+Django settings for stockman project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.7/topics/settings/
@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '1odb8_&hhc6remu#8+yrb(qn74d8i3hemsz^c)@fk0uxo(z)k)'
+SECRET_KEY = ')%9s2)+hc5s!7eaj%_7e7o0w7tua^82yd2$9utfp%n0^s1ng9&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -48,9 +48,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'stock_man.urls'
+ROOT_URLCONF = 'stockman.urls'
 
-WSGI_APPLICATION = 'stock_man.wsgi.application'
+WSGI_APPLICATION = 'stockman.wsgi.application'
 
 
 # Database
