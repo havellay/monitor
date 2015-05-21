@@ -11,13 +11,18 @@ class Trigger(object):
       s_symbol=None,
       s_attribute=None,
       s_value=None,
-      s_bias=None
+      s_bias=None,
+      symbol_obj=None,
     ):
     self.s_symbol       = s_symbol
+    self.symbol_obj     = symbol_obj
     self.s_attribute    = s_attribute
     self.s_value        = s_value
     self.s_bias         = s_bias
     self.f_current_val  = None
+
+    if not symbol_obj and s_symbol:
+      self.symbol_obj = Symbol.get_from_symbol_dict(s_symbol)
     return None
 
   def __str__(self):
@@ -28,9 +33,7 @@ class Trigger(object):
       )
 
   def is_triggered(self):
-    flag, self.f_current_val = Symbol.get_from_symbol_dict(
-        self.s_symbol
-      ).get_attrib(
+    flag, self.f_current_val = self.symbol_obj.get_attrib(
           s_attrib=self.s_attribute,
         ).is_triggered(
             self.s_value,

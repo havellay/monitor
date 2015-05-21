@@ -23,12 +23,13 @@ def make_test_data():
   #### ADDING USER AND TRIGGERS FOR EoD
   Users.add_user('hari')
   # create a symbol
-  Symbol(name='RELIANCE.NS',y_symbol='RELIANCE.NS')
+  reliance  = Symbol(name='Reliance',y_symbol='RELIANCE.BO',g_symbol='NSE:RELIANCE')
   # create a trigger
   trigger_list  = []
   trigger_list.append(
       Trigger(
-          s_symbol='RELIANCE.NS',
+          # s_symbol='RELIANCE.BO',
+          symbol_obj=reliance,
           s_attribute='RSI_period_1_param_10',
           s_value='10',
           s_bias='+',
@@ -36,7 +37,7 @@ def make_test_data():
     )
   trigger_list.append(
       Trigger(
-          s_symbol='RELIANCE.NS',
+          symbol_obj=reliance,
           s_attribute='RSI_period_1_param_20',
           s_value='10',
           s_bias='+',
@@ -44,7 +45,7 @@ def make_test_data():
     )
   trigger_list.append(
       Trigger(
-          s_symbol='RELIANCE.NS',
+          symbol_obj=reliance,
           s_attribute='Price_',
           s_value='10',
           s_bias='+',
@@ -57,12 +58,12 @@ def make_test_data():
   #### ADDING USER AND TRIGGERS FOR intraday
   Users.add_user('hari_intraday')
   # create a symbol
-  Symbol(name='YELP',y_symbol='YELP')
+  asianpaint  = Symbol(name='Asianpaint', y_symbol='ASIANPAINT.BO', g_symbol='NSE:ASIANPAINT')
   # create a trigger
   trigger_list  = []
   trigger_list.append(
       Trigger(
-          s_symbol='YELP',
+          symbol_obj=asianpaint,
           s_attribute='RSI_period_1_param_10_symbolmode_intraday',
           s_value='10',
           s_bias='+',
@@ -70,7 +71,7 @@ def make_test_data():
     )
   trigger_list.append(
       Trigger(
-          s_symbol='YELP',
+          symbol_obj=asianpaint,
           s_attribute='RSI_period_1_param_20_symbolmode_intraday',
           s_value='10',
           s_bias='+',
@@ -78,7 +79,7 @@ def make_test_data():
     )
   trigger_list.append(
       Trigger(
-          s_symbol='YELP',
+          symbol_obj=asianpaint,
           s_attribute='Price_symbolmode_intraday',
           s_value='10',
           s_bias='+',
@@ -95,24 +96,23 @@ if __name__ == "__main__":
   make_test_data()
 
   list_of_names_to_fetch_intraday_reports_for = [
-      # 'hari_intraday',
+      'hari_intraday',
     ]
   list_of_names_to_fetch_EoD_reports_for = [
       'hari',
     ]
 
   today2pm  = datetime.datetime.now().replace(
-      hour=23, minute=0,
+      hour=14, minute=0,
       second=0, microsecond=0
     )
 
-  """
-  while datetime.datetime.now() < today2pm:
+  # while datetime.datetime.now() < today2pm:
+  while True:
     time.sleep(1)                  # sleep for 15 seconds
     print 'woke up at : {}'.format(time.ctime())
     print Report(list_of_names_to_fetch_intraday_reports_for)
     print 'sleeping at : {}'.format(time.ctime())
-  """
 
   # update the End-of-Day prices with intraday
   # wipe away intraday prices
