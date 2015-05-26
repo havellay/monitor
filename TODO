@@ -12,35 +12,18 @@ Focus on End of Day prices
   - try to reduce the number of calls to yahoo finance; try not
       to fetch prices for weekends etc and waste time
 
-Focus on Intra day prices
-  - rework the existing end of day model
-  - have an invocation flag to look at
-  - add a few etc methods to Symbol that get called based on
-    this invocation flag
-
 plot issues
   - find some way of automatically splitting the data into plots
       ie., have multiple plots and group overlaying plots - one
       plot for each symbol. - try different ideas
   - have price shown as a line with all area under the curve
       filled with some transparent colour
-
-design a deamon or something to constantly generate reports for
-a few users
+  - find out how to manage plots in the djagno set-up
 
 be able to look at past data with current indicator and determine
 strength of a trigger. once that is done, try to train a ML algo
 
-Think about storing prices and dates in two separate lists instead
-of a list of two element tuples
-
-decouple Report.py - make it easier for user to execute for a
-given set of companies
-
-replace google and yahoo apis with http://devcartel.com/about ?
-
 when plotting RSI, make sure that max+min/2 = 50.
 
-issues :
-  - Find out whether all calculated values are stored in files;
-    make sure they aren't being recalculated unnecessarily
+Decide whether to store the date manually in the EoD and Intraday
+tables;

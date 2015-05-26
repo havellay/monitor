@@ -1,0 +1,20 @@
+{% extends 'monitor/base.html' %}
+
+{% block title %}The current time{% endblock %}
+
+{% block header %}<h1>This is the request information</h1>{% endblock %}
+
+{% block content %}
+  <p>request path is {{ request_path }}</p>
+  <p>request host is {{ request_host }}</p>
+  <p>full request path is {{ request_full_path }}</p>
+  <p>request is secure is a {{ request_is_secure }} statement</p>
+  {% for a,b in request_meta_list %}
+    <p>{{a}} {{b}}</p>
+  {% endfor %}
+{% endblock %}
+
+{% block footer %}
+<hr>
+<p>This page uses a custom footer</p>
+{% endblock %}

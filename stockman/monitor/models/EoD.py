@@ -16,3 +16,6 @@ class EoD(models.Model):
     return '{symbol} for {close} at {date}'.format(
         symbol=self.symbol, close=close_qt, date=date,
       )
+
+  def get_price(self, start_date, end_date):
+    pass
