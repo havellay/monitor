@@ -15,6 +15,9 @@ class Intraday(models.Model):
         symbol=self.symbol, quote=self.quote, time=self.time,
       )
 
+  class Meta:
+    ordering  = ['time']
+
   @staticmethod
   def append_latest(symbol):
     # Maybe this method is responsible to ensure that frequent

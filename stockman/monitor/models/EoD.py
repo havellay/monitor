@@ -19,6 +19,9 @@ class EoD(models.Model):
         symbol=self.symbol, close=self.close_qt, date=self.date,
       )
 
+  class Meta:
+    ordering  = ['date']
+
   @staticmethod
   def append_latest(sym):
     if datetime.now() < close_time:
