@@ -1,5 +1,6 @@
 import requests
 import json
+from datetime import datetime
 
 from yahoo_finance import Share as yHandle
 
@@ -19,7 +20,12 @@ class NSE_picker(object):
           'high':float(0),
           'low':float(0),
           'quote':float(info_dict['data'][0]['lastPrice'].replace(',','')),
-          'volume':float(info_dict['data'][0]['quantityTraded'].replace(',','')),
+          'volume':float(
+              info_dict['data'][0]['quantityTraded'].replace(',','')
+            ),
+          'time':datetime.strptime(
+              info_dict['lastUpdateTime'], '%d-%b-%Y %H:%M:%S'
+            ),
         }
     except Exception:
       print 'some problem occurred'
@@ -65,11 +71,12 @@ class Yahoo_picker(object):
     for qt in quotes_dict_list:
       new_dict_list.append(
           {
-            'close_qt':qt.get('Close'),
-            'high_qt' :qt.get('High'),
-            'low_qt'  :qt.get('Low'),
-            'open_qt' :qt.get('Open'),
-            'volume'  :qt.get('Volume'),
+            'close_qt':float(qt.get('Close')),
+            'high_qt' :float(qt.get('High')),
+            'low_qt'  :float(qt.get('Low')),
+            'open_qt' :float(qt.get('Open')),
+            'volume'  :int(qt.get('Volume')),
+            'date'    :datetime.strptime(qt.get('Date'), '%Y-%m-%d'),
           },
         )
     return new_dict_list

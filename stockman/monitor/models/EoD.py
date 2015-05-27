@@ -7,8 +7,7 @@ from monitor.market_times  import close_time
 
 class EoD(models.Model):
   symbol    = models.ForeignKey(Symbol)
-  date      = models.DateTimeField(auto_now=True) # not sure whether this
-                                                  # should be true
+  date      = models.DateTimeField()
   open_qt   = models.DecimalField(max_digits=9, decimal_places=2)
   close_qt  = models.DecimalField(max_digits=9, decimal_places=2)
   high_qt   = models.DecimalField(max_digits=9, decimal_places=2)
@@ -34,7 +33,7 @@ class EoD(models.Model):
         eod = EoD(
             symbol=sym, open_qt=x.get('open_qt'), close_qt=x.get('close_qt'),
             high_qt=x.get('high_qt'), low_qt=x.get('low_qt'),
-            volume=x.get('volume'),
+            volume=x.get('volume'), date=x.get('date'),
           )
         eod.save()
     else:
