@@ -17,10 +17,13 @@ class Intraday(models.Model):
       )
 
   @staticmethod
-  def append_latest_price(symbol):
+  def append_latest(symbol):
+    # Maybe this method is responsible to ensure that frequent
+    # additions to the database doesn't happen and instead
+    # quotes are only added once in 2 minutes or something
     intraday_quote  = Intraday()
-    price,volume    = Picker.get_current_price_volume(symbol)
+    latest_dict     = Picker.get_current(symbol)
     intraday_quote.symbol = symbol
-    intraday_quote.quote  = price
-    intraday_quote.volume = volume
+    intraday_quote.quote  = latest_dict.get('quote')
+    intraday_quote.volume = latest_dict.get('volume')
     intraday_quote.save()

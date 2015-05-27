@@ -27,3 +27,7 @@ when plotting RSI, make sure that max+min/2 = 50.
 
 Decide whether to store the date manually in the EoD and Intraday
 tables;
+
+Store migrations in git?? - not needed i guess
+
+Add new table for Attributes

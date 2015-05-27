@@ -10,5 +10,5 @@ from monitor.models import Symbol, Intraday
 class Command(BaseCommand):
   def handle(self, *args, **options):
     for sym in Symbol.Symbol.objects.all():
-      Intraday.Intraday.append_latest_price(sym)
+      Intraday.Intraday.append_latest(sym)
     return None
