@@ -20,7 +20,8 @@ class EoD(models.Model):
       )
 
   class Meta:
-    ordering  = ['date']
+    ordering        = ['date']
+    unique_together = (('symbol','date'),)
 
   @staticmethod
   def append_latest(sym):
@@ -39,16 +40,19 @@ class EoD(models.Model):
             volume=x.get('volume'), date=x.get('date'),
           )
         eod.save()
-    else:
-      # There are some quotes for this symbol already;
-      # assume that these are quotes from May 1st 2014
-      # onwards and fetch the last close price
-      ld  = Picker.get_current(sym)
-      eod = EoD(
-          symbol=sym, open_qt=ld.get('open'), close_qt=ld.get('close'),
-          high_qt=ld.get('high'), low_qt=ld.get('low'),
-          volume=ld.get('volume'),
-        )
-      eod.save()
+
+    # There are some quotes for this symbol already;
+    # assume that these are quotes from May 1st 2014
+    # onwards and fetch the last close price
+    ld          = Picker.get_current(sym)
+    ld['time']  = ld.get('time').replace(
+        hour=0, minute=0, second=0, microsecond=0
+      )
+    eod = EoD(
+        symbol=sym, open_qt=ld.get('open'), close_qt=ld.get('close'),
+        high_qt=ld.get('high'), low_qt=ld.get('low'),
+        volume=ld.get('volume'), date=ld.get('time'),
+      )
+    eod.save()
     return None
 

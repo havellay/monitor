@@ -2,6 +2,8 @@ import cPickle as pickle
 import json
 import os
 
+from django import forms
+
 from stockman.settings import BASE_DIR
 from monitor.models.Symbol import Symbol
 from monitor.models.EoD import EoD
@@ -82,9 +84,16 @@ class RSI(object):
       return (True, self.values[-1])
     return (False, 0)
 
+  class form(forms.Form):
+    root_name   = 'RSI'
+    time_unit   = forms.ChoiceField(choices=['day', 'minute'])
+    time_param  = forms.IntegerField()
+
+
 class Attribute(object):
   directory = {
       'RSI':RSI,
+      'self':RSI,
     }
   @staticmethod
   def is_triggered(trigger):

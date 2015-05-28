@@ -28,6 +28,12 @@ when plotting RSI, make sure that max+min/2 = 50.
 Decide whether to store the date manually in the EoD and Intraday
 tables;
 
-Store migrations in git?? - not needed i guess
+Store migrations in git?? - not needed i guess; also, don't track
+pickles with git
 
-Add new table for Attributes
+create forms and views that will let me:
+  - add reminders and triggers
+  - add sybmols
+  - add users
+  - look at available service symbols for each symbol and based
+    on that, decide which picker to use when fetching prices

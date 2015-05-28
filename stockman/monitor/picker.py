@@ -45,7 +45,6 @@ class Yahoo_picker(object):
   def get_historical(symbol=None, from_date=None, to_date=None):
     symbol      = symbol.y_symbol
     handle      = yHandle(symbol)
-    import ipdb; ipdb.set_trace()
     quotes_dict_list = handle.get_historical(
         from_date.__str__(), to_date.__str__())[::-1]
     """

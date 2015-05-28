@@ -16,13 +16,15 @@ class Intraday(models.Model):
       )
 
   class Meta:
-    ordering  = ['time']
+    ordering        = ['time']
+    unique_together = (('symbol','time'),)
 
   @staticmethod
   def append_latest(symbol):
     # Maybe this method is responsible to ensure that frequent
     # additions to the database doesn't happen and instead
     # quotes are only added once in 2 minutes or something
+    # TODO : be mindful of market_times
     latest_dict     = Picker.get_current(symbol)
     intraday_quote  = Intraday(
         symbol=symbol, quote=latest_dict.get('quote'),

@@ -10,4 +10,3 @@ class User(models.Model):
     return '{username} logs in with {login}; email address is {email}'.format(
         username=self.username, login=self.login, email=self.email,
       )
-    pass

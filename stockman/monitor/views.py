@@ -2,12 +2,11 @@ from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
+from monitor.forms import SymbolForm, TriggerForm
+
 import datetime
 
 # Create your views here.
-
-def hello(request):
-  return print_request_info(request)
 
 def print_request_info(request):
   request_meta_list = []
@@ -26,38 +25,28 @@ def print_request_info(request):
     )
 
 def insert_symbol(request):
-  # this method has a side effect, so get is not the best way to go;
-  # and make sure you redirect to another page when there is a POST
-  inserted_name = request.GET.get('name', None)
-  if inserted_name:
-    return render(
-        request, 'monitor/insert_symbol_form.html',
-        {
-          'inserted':True,
-          'inserted_symbol_name':inserted_name,
-        }
-      )
+  if request.method == 'POST':
+    form  = SymbolForm(request.POST)
+    if form.is_valid():
+      cd  = form.cleaned_data
+      for x in cd:
+        print cd.get(x)
+  else:
+    form  = SymbolForm()
   return render(
-      request, 'monitor/insert_symbol_form.html',
+      request, 'monitor/insert_symbol.html', {'form':form},
     )
 
-def contact(request):
-  errors  = []
+def insert_trigger(request):
   if request.method == 'POST':
-    if not request.POST.get('subject', ''):
-      errors.append('Enter a subject.')
-    if not request.POST.get('message', ''):
-      errors.append('Enter a message')
-    if request.POST.get('email') and '@' not in request.POST['email']:
-      errors.append('Enter a valid e-mail address.')
-    if not errors:
-      send_mail(
-          request.POST['subject'],
-          request.POST['message'],
-          request.POST.get('email', 'noreply@example.com'),
-          ['siteowner@example.com'],
-        )
-      return HttpResponseRedirect('/contact/thanks/')
+    form  = TriggerForm(request.POST)
+    if form.is_valid():
+      cd  = form.cleaned_data
+      for x in cd:
+        print cd.get(x)
+  else:
+    import ipdb; ipdb.set_trace()
+    form  = TriggerForm()
   return render(
-      request, 'monitor/contact_form.html', {'errors':errors}
+      request, 'monitor/insert_trigger.html', {'form':form},
     )

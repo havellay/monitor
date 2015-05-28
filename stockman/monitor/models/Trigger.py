@@ -1,8 +1,9 @@
 from django.db import models
+from django import forms
 
 from .Symbol import Symbol
 from .Reminder import Reminder
-from monitor.Attribute import Attribute
+from monitor.attribute import Attribute
 
 class Trigger(models.Model):
   reminder  = models.ForeignKey(Reminder)
@@ -13,3 +14,4 @@ class Trigger(models.Model):
 
   def is_triggered(self):
     return Attribute.is_triggered(self)
+
