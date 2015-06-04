@@ -1,12 +1,87 @@
+import datetime
+import json
+
 from django.core.mail import send_mail
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
+from django.template import Template, Context
 from django.shortcuts import render
 
 from monitor.forms import SymbolForm, TriggerForm
-
-import datetime
+from monitor.attribute import Attribute
+from monitor.models.Symbol import Symbol
+from monitor.models.Reminder import Reminder
+from monitor.models.Trigger import Trigger
+from monitor.models.User import User
 
 # Create your views here.
+
+def insert_symbol(request):
+  if request.method == 'POST':
+    form  = SymbolForm(request.POST)
+    if form.is_valid():
+      cd  = form.cleaned_data
+      Symbol.append_new(
+          name=cd.get('name'), y_symbol=cd.get('y_symbol'),
+          g_symbol=cd.get('g_symbol'), nse_symbol=cd.get('nse_symbol'),
+        )
+  else:
+    form  = SymbolForm()
+  return render(
+      request, 'monitor/insert_symbol.html', {'form':form},
+    )
+
+
+def insert_reminder(request):
+  if request.method == 'POST':
+    optd    = {}
+    invalid = '---'
+    form    = TriggerForm(request.POST)
+    # {
+    #   'attribute2': u'---',
+    #   'attribute1_hidden': u'{"time_unit":"day","time_param":"10","bias":"+"}',
+    #   'symbol': u'ONGC', 'attribute1': u'self', 'attribute2_hidden': u''
+    # }
+    if form.is_valid():
+      cd      = form.cleaned_data
+      user    = User.objects.filter(login='hari')[0]
+      symbol  = Symbol.objects.filter(name=cd.get('symbol'))[0]
+      attribute_dicts = []
+      for x in cd:
+        if 'attribute' in x and 'hidden' not in x and cd.get(x) != invalid:
+          try:
+            optd            = json.loads(cd.get(x+'_hidden'))
+          except Exception:
+            print 'malformed option string'
+          # optd['symbol']    = symbol.name
+          optd['attribute'] = cd.get(x)
+          optd['symbol_id'] = symbol.id
+          optd['user']      = user.login  # hard-coding this now, have to change
+          if Attribute.is_valid_option_dict(optd):
+            attribute_dicts.append(optd)
+      reminder  = Reminder.append_new(user=user)
+      attrib    = Attribute.optd_to_file_name(optd)
+      for x in attribute_dicts:
+        Trigger.append_new(
+            reminder=reminder, symbol=symbol, attrib=attrib,
+            trig_val=optd.get('trigger_val'), bias=optd.get('bias'),
+          )
+  else:
+    form  = TriggerForm()
+  return render(
+      request, 'monitor/insert_reminder.html', {'form':form},
+    )
+
+
+def get_attrib_form(request):
+  form = None
+  if request.GET.get('attrib'):
+    form = Attribute.get_form(request.GET['attrib'])
+  t = Template('{{ form }}')
+  html = t.render(Context({'form':form}))
+  return HttpResponse(html)
+
+
+# get rid of functions below this comment
 
 def print_request_info(request):
   request_meta_list = []
@@ -24,29 +99,8 @@ def print_request_info(request):
       },
     )
 
-def insert_symbol(request):
-  if request.method == 'POST':
-    form  = SymbolForm(request.POST)
-    if form.is_valid():
-      cd  = form.cleaned_data
-      for x in cd:
-        print cd.get(x)
-  else:
-    form  = SymbolForm()
-  return render(
-      request, 'monitor/insert_symbol.html', {'form':form},
-    )
+def scratch(request):
+  return render(request, 'monitor/scratch/index.html', {})
 
-def insert_trigger(request):
-  if request.method == 'POST':
-    form  = TriggerForm(request.POST)
-    if form.is_valid():
-      cd  = form.cleaned_data
-      for x in cd:
-        print cd.get(x)
-  else:
-    import ipdb; ipdb.set_trace()
-    form  = TriggerForm()
-  return render(
-      request, 'monitor/insert_trigger.html', {'form':form},
-    )
+def get_form(request):
+  return render(request, 'monitor/scratch/form.html', {})

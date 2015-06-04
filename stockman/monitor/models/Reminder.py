@@ -8,3 +8,8 @@ class Reminder(models.Model):
   def __unicode__(self):
     return '{user}'.format(user=self.user)
 
+  @staticmethod
+  def append_new(user=None):
+    reminder  = Reminder(user=user)
+    reminder.save()
+    return reminder

@@ -84,10 +84,71 @@ class RSI(object):
       return (True, self.values[-1])
     return (False, 0)
 
+  @staticmethod
+  def is_valid_option_dict(optd):
+    keys = [
+        'symbol_id',
+        'time_param',
+        'time_unit',
+        'trigger_val',
+        'bias',
+      ]
+    if optd.get('time_unit') == '---':
+      return False
+    for key in keys:
+      if not optd.get(key):
+        return False
+    return True
+
+  @staticmethod
+  def optd_to_file_name(optd):
+    # {
+    #     "root_name": "RSI",
+    #     "options":
+    #     {
+    #         "symbol_id": 1,
+    #         "time_param": 10,
+    #         "time_unit": "day"
+    #     }
+    # }
+    temp_optd = {}
+    temp_optd['root_name']  = optd.get('attribute')
+    temp_optd['options']    = {}
+    temp_optd['options']['symbol_id']   = optd.get('symbol_id')
+    temp_optd['options']['time_param']  = optd.get('time_param')
+    temp_optd['options']['time_unit']   = optd.get('time_unit')
+    return json.dumps(temp_optd)
+
   class form(forms.Form):
+    # Trigger form is used when creating a Reminder;
+    # so, it has fields such as 'bias'
     root_name   = 'RSI'
-    time_unit   = forms.ChoiceField(choices=['day', 'minute'])
+    choices     = [
+        ('---', '---'),
+        ('day','day'),
+        ('minute','minute'),
+      ]
+    bias_choices= [
+        ('---', '---'),
+        ('+', '+'),
+        ('-', '-'),
+      ]
+    time_unit   = forms.ChoiceField(choices=choices)
     time_param  = forms.IntegerField()
+    bias        = forms.ChoiceField(choices=bias_choices)
+    trigger_val = forms.DecimalField()
+    time_unit.widget.attrs["onchange"]  = (
+        'make_attribute_string(this, \'time_unit\');'
+      )
+    time_param.widget.attrs["onchange"] = (
+        'make_attribute_string(this, \'time_param\');'
+      )
+    bias.widget.attrs["onchange"] = (
+        'make_attribute_string(this, \'bias\');'
+      )
+    trigger_val.widget.attrs["onchange"]  = (
+        'make_attribute_string(this, \'trigger_val\');'
+      )
 
 
 class Attribute(object):
@@ -121,6 +182,7 @@ class Attribute(object):
     attrib_info_dict  = json.loads(attrib)
 
     file_name = BASE_DIR+'/pickles/'+str(symbol.id)+'_'+attrib+'.pickle'
+    file_name = file_name.replace(' ','')
 
     if os.path.isfile(file_name):
       # 'attrib_obj' is an instance of RSI() etc.
@@ -133,4 +195,29 @@ class Attribute(object):
     attrib_obj.calculate()
     pickle.dump(attrib_obj, open(file_name, 'w'))
     return attrib_obj.is_triggered(trigger)
+
+  # NOTE: thought of taking the common lines from
+  # is_valid_option_dict() and get_form() using
+  # vars(attrib) as a dict to get the method;
+  # but this wouldn't shorten the methods.
+  @staticmethod
+  def is_valid_option_dict(optd):
+    attrib  = Attribute.directory.get(optd.get('attribute'))
+    if attrib:
+      return attrib.is_valid_option_dict(optd)
+    return None
+
+  @staticmethod
+  def get_form(attribs):
+    attrib  = Attribute.directory.get(attribs)
+    if attrib:
+      return attrib.form()
+    return None
+
+  @staticmethod
+  def optd_to_file_name(optd):
+    attrib = Attribute.directory.get(optd.get('attribute'))
+    if attrib:
+      return attrib.optd_to_file_name(optd)
+    return None
 

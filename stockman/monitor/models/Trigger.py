@@ -15,3 +15,16 @@ class Trigger(models.Model):
   def is_triggered(self):
     return Attribute.is_triggered(self)
 
+  @staticmethod
+  def append_new(
+      reminder=None, symbol=None, attrib=None,
+      trig_val=None, bias=None,
+    ):
+    trigger = Trigger(
+        reminder=reminder, symbol=symbol, attrib=attrib,
+        trig_val=trig_val, bias=bias,
+      )
+    trigger.save()
+    return True
+
+

@@ -18,10 +18,27 @@ class SymbolForm(forms.Form):
 
 class TriggerForm(forms.Form):
   # the reminder should be auto assigned;
-  symbol_choices  = tuple([sym.name for sym in Symbol.objects.all()])
-  symbol          = forms.ChoiceField(choices=[symbol_choices])
-  attribute_choices = tuple([x for x in Attribute.directory.keys()])
-  attribute         = forms.ChoiceField(choices=[attribute_choices])
+  symbol_choices  = [(sym.name,sym.name) for sym in Symbol.objects.all()]
+  symbol          = forms.ChoiceField(choices=symbol_choices)
+
+  attribute_choices = [(x,x) for x in Attribute.directory.keys()]
+  default_attribute = '---'
+  attribute_choices.insert(0, (default_attribute, default_attribute))
+  # changing the names of attribute1 and attribute2 variables
+  # below will need changing the javascript in insert_trigger.html
+  attribute1        = forms.ChoiceField(
+      choices=attribute_choices,
+      initial=default_attribute,
+    )
+  attribute1_hidden = forms.CharField(required=False,widget=forms.HiddenInput())
+  attribute2        = forms.ChoiceField(
+      choices=attribute_choices,
+      initial=default_attribute,
+    )
+  attribute2_hidden = forms.CharField(required=False,widget=forms.HiddenInput())
+  # for attribute1 and attribute2, make sure that the default
+  # choice is '---' or something; when the user selects a valid
+  # option, the form for the appropriate attribute is fetched;
   # form for attribute is attribute_forms.get(attribute)
 
 
