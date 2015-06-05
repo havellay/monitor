@@ -81,6 +81,18 @@ def get_attrib_form(request):
   return HttpResponse(html)
 
 
+def get_triggered_reminders(request):
+  rl = Reminder.triggered_reminders()
+  rdl = []
+  for r in rl:
+    rdl.append(r.to_dict())
+  return render(
+      request,
+      'monitor/get_triggered_reminders.html',
+      {'rdl':rdl},
+    )
+
+
 # get rid of functions below this comment
 
 def print_request_info(request):

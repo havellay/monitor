@@ -184,12 +184,14 @@ class Attribute(object):
     file_name = BASE_DIR+'/pickles/'+str(symbol.id)+'_'+attrib+'.pickle'
     file_name = file_name.replace(' ','')
 
+    import ipdb; ipdb.set_trace()
     if os.path.isfile(file_name):
       # 'attrib_obj' is an instance of RSI() etc.
       attrib_obj  = pickle.load(open(file_name, 'r'))
     else:
       # compute the attrib and store in pickle
       attrib_obj  = Attribute.directory.get(attrib_info_dict.get('root_name'))()
+      these options are strings... fix that.
       attrib_obj.set_options(attrib_info_dict.get('options'))
 
     attrib_obj.calculate()
