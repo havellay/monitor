@@ -19,21 +19,22 @@ plot issues
   - have price shown as a line with all area under the curve
       filled with some transparent colour
   - find out how to manage plots in the djagno set-up
+  - when plotting RSI, make sure that max+min/2 = 50.
 
 be able to look at past data with current indicator and determine
 strength of a trigger. once that is done, try to train a ML algo
-
-when plotting RSI, make sure that max+min/2 = 50.
-
-Decide whether to store the date manually in the EoD and Intraday
-tables;
 
 Store migrations in git?? - not needed i guess; also, don't track
 pickles with git
 
 create forms and views that will let me:
-  - add reminders and triggers
-  - add sybmols
   - add users
   - look at available service symbols for each symbol and based
-    on that, decide which picker to use when fetching prices
+      on that, decide which picker to use when fetching prices
+  - add a view to show the tirggers and whether they have been
+      triggered.
+
+make cron jobs that take care of fetching latest quotes,
+processing triggers (when processing triggers, find some way
+of separating intraday triggers from eod triggers and process
+only intraday triggers during market hour cron jobs).

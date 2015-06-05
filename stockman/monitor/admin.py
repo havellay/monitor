@@ -9,6 +9,7 @@ from models.Intraday import Intraday
 from models.User import User
 from models.Reminder import Reminder
 from models.Trigger import Trigger
+from models.Config import Config
 
 class SymbolAdmin(admin.ModelAdmin):
   list_display  = ('name', 'y_symbol', 'g_symbol')
@@ -20,5 +21,6 @@ admin.site.register(Intraday)
 admin.site.register(User)
 admin.site.register(Reminder)
 admin.site.register(Trigger)
+admin.site.register(Config)
 
 # Register your models here.

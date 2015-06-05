@@ -8,7 +8,7 @@ from monitor.attribute import Attribute
 class Trigger(models.Model):
   reminder  = models.ForeignKey(Reminder)
   symbol    = models.ForeignKey(Symbol)
-  attrib    = models.CharField(max_length=100)
+  attrib    = models.CharField(max_length=200)
   trig_val  = models.CharField(max_length=30)
   bias      = models.CharField(max_length=30)
 

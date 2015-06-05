@@ -8,5 +8,5 @@ class Command(BaseCommand):
   def handle(self, *args, **options):
     print BASE_DIR
     for x in Symbol.objects.all():
-      print x.id
+      print x.name
     return None
