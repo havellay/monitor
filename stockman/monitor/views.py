@@ -6,6 +6,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.template import Template, Context
 from django.shortcuts import render
 
+from stockman.settings import BASE_DIR
+
 from monitor.forms import SymbolForm, TriggerForm
 from monitor.attribute import Attribute
 from monitor.models.Symbol import Symbol
@@ -92,6 +94,15 @@ def get_triggered_reminders(request):
       'monitor/get_triggered_reminders.html',
       {'rdl':rdl},
     )
+
+
+def provide_monitorjs(request):
+  try:
+    fp = open(BASE_DIR+'/templates/monitor/scripts/monitor.js','r')
+    content = fp.read()
+  except Exception:
+    print 'problem reading monitor.js'
+  return HttpResponse(content)
 
 
 # get rid of functions below this comment
