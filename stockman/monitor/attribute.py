@@ -78,27 +78,44 @@ class RSI(object):
     return None
 
   def is_triggered(self, trigger):
-    if trigger.bias == '+' and self.values[-1] > trigger.trig_val:
+    # trig_val is a string because that is how the model describes it
+    # convert to a float when comparing here; we don't need a try
+    # except block because we have verified this conversion earlier
+    # in to_clean_optd()
+    trig_val  = float(trigger.trig_val)
+    if trigger.bias == '+' and self.values[-1] > trig_val:
+      print '{trigger} current value is {val}'.format(
+          trigger=trigger, val=self.values[-1]
+        )
       return (True, self.values[-1])
-    if trigger.bias == '-' and self.values[-1] <= trigger.trig_val:
+    if trigger.bias == '-' and self.values[-1] <= trig_val:
+      print '{trigger} current value is {val}'.format(
+          trigger=trigger, val=self.values[-1]
+        )
       return (True, self.values[-1])
     return (False, 0)
 
   @staticmethod
-  def is_valid_option_dict(optd):
-    keys = [
-        'symbol_id',
-        'time_param',
-        'time_unit',
-        'trigger_val',
-        'bias',
-      ]
+  def to_clean_optd(optd):
+    c_optd  = {}
+    key_type_dict = {
+        'symbol_id': int,
+        'time_param': int,
+        'time_unit': str,
+        'trig_val': float,
+        'bias': str,
+      }
     if optd.get('time_unit') == '---':
-      return False
-    for key in keys:
-      if not optd.get(key):
-        return False
-    return True
+      return None
+    for key in optd:
+      if key_type_dict.get(key):
+        try:
+          c_optd[key] = key_type_dict.get(key)(optd.get(key))
+        except Exception:
+          print 'error when cleaning attribute options dict'
+      else:
+        c_optd[key] = optd.get(key)
+    return c_optd
 
   @staticmethod
   def optd_to_file_name(optd):
@@ -136,7 +153,7 @@ class RSI(object):
     time_unit   = forms.ChoiceField(choices=choices)
     time_param  = forms.IntegerField()
     bias        = forms.ChoiceField(choices=bias_choices)
-    trigger_val = forms.DecimalField()
+    trig_val    = forms.DecimalField()
     time_unit.widget.attrs["onchange"]  = (
         'make_attribute_string(this, \'time_unit\');'
       )
@@ -146,8 +163,8 @@ class RSI(object):
     bias.widget.attrs["onchange"] = (
         'make_attribute_string(this, \'bias\');'
       )
-    trigger_val.widget.attrs["onchange"]  = (
-        'make_attribute_string(this, \'trigger_val\');'
+    trig_val.widget.attrs["onchange"]  = (
+        'make_attribute_string(this, \'trig_val\');'
       )
 
 
@@ -184,14 +201,12 @@ class Attribute(object):
     file_name = BASE_DIR+'/pickles/'+str(symbol.id)+'_'+attrib+'.pickle'
     file_name = file_name.replace(' ','')
 
-    import ipdb; ipdb.set_trace()
     if os.path.isfile(file_name):
       # 'attrib_obj' is an instance of RSI() etc.
       attrib_obj  = pickle.load(open(file_name, 'r'))
     else:
       # compute the attrib and store in pickle
       attrib_obj  = Attribute.directory.get(attrib_info_dict.get('root_name'))()
-      these options are strings... fix that.
       attrib_obj.set_options(attrib_info_dict.get('options'))
 
     attrib_obj.calculate()
@@ -199,14 +214,14 @@ class Attribute(object):
     return attrib_obj.is_triggered(trigger)
 
   # NOTE: thought of taking the common lines from
-  # is_valid_option_dict() and get_form() using
+  # to_clean_optd() and get_form() using
   # vars(attrib) as a dict to get the method;
   # but this wouldn't shorten the methods.
   @staticmethod
-  def is_valid_option_dict(optd):
+  def to_clean_optd(optd):
     attrib  = Attribute.directory.get(optd.get('attribute'))
     if attrib:
-      return attrib.is_valid_option_dict(optd)
+      return attrib.to_clean_optd(optd)
     return None
 
   @staticmethod

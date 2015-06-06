@@ -56,14 +56,15 @@ def insert_reminder(request):
           optd['attribute'] = cd.get(x)
           optd['symbol_id'] = symbol.id
           optd['user']      = user.login  # hard-coding this now, have to change
-          if Attribute.is_valid_option_dict(optd):
-            attribute_dicts.append(optd)
+          c_optd  = Attribute.to_clean_optd(optd)
+          if c_optd:
+            attribute_dicts.append(c_optd)
       reminder  = Reminder.append_new(user=user)
-      attrib    = Attribute.optd_to_file_name(optd)
+      attrib    = Attribute.optd_to_file_name(c_optd)
       for x in attribute_dicts:
         Trigger.append_new(
             reminder=reminder, symbol=symbol, attrib=attrib,
-            trig_val=optd.get('trigger_val'), bias=optd.get('bias'),
+            trig_val=c_optd.get('trig_val'), bias=c_optd.get('bias'),
           )
   else:
     form  = TriggerForm()

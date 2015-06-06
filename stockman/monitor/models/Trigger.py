@@ -49,8 +49,8 @@ class Trigger(models.Model):
   def is_reminder_triggered(reminder):
     triggered = True
     for trigger in Trigger.objects.filter(reminder=reminder):
-      if trigger.is_triggered() == False:
+      flag,val  = trigger.is_triggered()
+      if flag == False:
         triggered = False
         break
     return triggered
-    
