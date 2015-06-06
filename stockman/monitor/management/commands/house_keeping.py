@@ -10,7 +10,15 @@ from monitor.models.Symbol import Symbol
 from monitor.models.EoD import EoD
 from monitor.models.Intraday import Intraday
 
+
 class Command(BaseCommand):
+  @staticmethod
+  def custom_config_update_or_create(subject=None, predicate=None):
+    return Config.objects.update_or_create(
+        subject=subject,
+        defaults={'subject':subject, 'predicate':predicate},
+      )
+
   def handle(self, *args, **options):
     """
     It is expected that there will only be one thread
@@ -22,33 +30,56 @@ class Command(BaseCommand):
     EoD_update_config_predicate             = 'EoD_update'
     Intraday_update_config_predicate        = 'Intraday_update'
 
-    last_action = Config.objects.filter(
-        subject=housekeeping_last_action_config_subject
-      ).first()
+    housekeeping_last_start_config_subject  = 'house_keeping_last_start'
 
-    if not last_action:
-      last_action = Config.set(
-          subject=housekeeping_last_action_config_subject,
-          predicate=None
+    housekeeping_last_stop_config_subject   = 'house_keeping_last_stop'
+
+    try:
+      last_start,_ = Command.custom_config_update_or_create(
+          subject=housekeeping_last_start_config_subject,
+          predicate=datetime.now(),
         )
-      last_action.save()
+    except Exception as e:
+      print 'something wrong happened when registering start time'
+      print e
+
+    last_action = Config.objects.filter(
+        subject=housekeeping_last_action_config_subject,
+      ).first()
 
     if datetime.now() < open_time or datetime.now() > close_time:
       print 'Market is closed'
-      if last_action.predicate  == EoD_update_config_predicate:
+      if last_action and last_action.predicate  == EoD_update_config_predicate:
         print 'Nothing to do'
-        return None
       else:
         print 'perform EoD updates'
-        last_action.predicate = EoD_update_config_predicate
-        EoD_updates()
+        try:
+          last_action,_ = Command.custom_config_update_or_create(
+              subject=house_keeping_last_action_config_subject,
+              predicate=EoD_update_config_predicate,
+            )
+          EoD_updates()
+        except Exception as e:
+          print 'error when performing EoD_updates'
+          print e
     else:
       print 'Market is open'
       print 'perform Intraday updates'
-      last_action.predicate = Intraday_update_config_predicate
-      intraday_updates()
+      try:
+        last_action,_ = Command.custom_config_update_or_create(
+            subject=house_keeping_last_action_config_subject,
+            predicate=Intraday_update_config_predicate,
+          )
+        intraday_updates()
+      except Exception as e:
+        print 'error when performing intraday updates'
+        print e
 
-    last_action.save()
+    last_stop,_ = Command.custom_config_update_or_create(
+        subject=housekeeping_last_stop_config_subject,
+        predicate=datetime.now(),
+      )
+
     return None
 
 def EoD_updates():
@@ -60,3 +91,5 @@ def intraday_updates():
   for sym in Symbol.objects.all():
     Intraday.append_latest(sym)
   return None
+
+
