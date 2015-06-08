@@ -55,7 +55,7 @@ class Command(BaseCommand):
         print 'perform EoD updates'
         try:
           last_action,_ = Command.custom_config_update_or_create(
-              subject=house_keeping_last_action_config_subject,
+              subject=housekeeping_last_action_config_subject,
               predicate=EoD_update_config_predicate,
             )
           EoD_updates()
@@ -67,7 +67,7 @@ class Command(BaseCommand):
       print 'perform Intraday updates'
       try:
         last_action,_ = Command.custom_config_update_or_create(
-            subject=house_keeping_last_action_config_subject,
+            subject=housekeeping_last_action_config_subject,
             predicate=Intraday_update_config_predicate,
           )
         intraday_updates()

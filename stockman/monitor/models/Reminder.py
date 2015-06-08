@@ -15,7 +15,7 @@ class Reminder(models.Model):
 
     for t in triggers:
       if not rem_dict.get('symbol'):
-        rem_dict['symbol'] = t.symbol
+        rem_dict['symbol'] = str(t.symbol)
       trig_str = 'trigger'+str(count)
       rem_dict[trig_str] = t.to_dict()
       count += 1

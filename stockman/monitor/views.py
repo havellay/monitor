@@ -17,6 +17,15 @@ from monitor.models.User import User
 
 # Create your views here.
 
+def get_index(request):
+  try:
+    fp = open(BASE_DIR+'/templates/monitor/index.html','r')
+    content = fp.read()
+  except Exception:
+    print 'problem reading index.html'
+  return HttpResponse(content)
+
+
 def insert_symbol(request):
   if request.method == 'POST':
     form  = SymbolForm(request.POST)
@@ -86,23 +95,37 @@ def get_attrib_form(request):
 
 def get_triggered_reminders(request):
   rl = Reminder.triggered_reminders()
-  rdl = []
+  rsdl = [] # reminder dict string list
+  i = 0
   for r in rl:
-    rdl.append(r.to_dict())
+    rsdl.append({'string':json.dumps(r.to_dict())})
+    rsdl[-1]['element_id'] = 'reminder_'+str(i)
+    i+=1
   return render(
       request,
       'monitor/get_triggered_reminders.html',
-      {'rdl':rdl},
+      {
+        'rsdl':rsdl,
+        'rsdl_count':len(rsdl),
+      },
     )
 
 
-def provide_monitorjs(request):
+def provide_script(request, dname=None, fname=None):
+  """
+  This method can be dangerous and can be used
+  to fetch files; think of a better solution
+  """
   try:
-    fp = open(BASE_DIR+'/templates/monitor/scripts/monitor.js','r')
-    content = fp.read()
-  except Exception:
-    print 'problem reading monitor.js'
-  return HttpResponse(content)
+    import mimetypes
+    full_path   = BASE_DIR+'/templates/monitor/'+dname+'/'+fname
+    fp          = open(full_path, 'r')
+    content     = fp.read()
+    content_type,_ = mimetypes.guess_type(full_path)
+  except Exception as e:
+    print 'problem reading script'
+    print e
+  return HttpResponse(content, content_type=content_type)
 
 
 # get rid of functions below this comment

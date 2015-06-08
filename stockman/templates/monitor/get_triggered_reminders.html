@@ -1,7 +1,4 @@
-<html>
-<body>
-  {% for rd in rdl %}
-    {{ rd }}
-  {% endfor %}
-</body>
-</html>
+<div id="reminder_count">{{ rsdl_count }}</div>
+{% for rsd in rsdl %}
+  <div id="{{rsd.element_id}}">{{ rsd.string }}</div>
+{% endfor %}

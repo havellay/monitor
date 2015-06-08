@@ -41,4 +41,4 @@ only intraday triggers during market hour cron jobs).
 
 walk through the code and add try except blocks wherever applicable
 
-
+Find the right way of delivering js, css, images and fonts;
