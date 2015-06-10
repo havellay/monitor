@@ -3,8 +3,20 @@ from django.db import models
 from monitor.models.User import User
 
 class Reminder(models.Model):
-  user  = models.ForeignKey(User)
+  user          = models.ForeignKey(User)
+  is_triggered  = models.BooleanField(default=False)
   # have symbol as a field of reminder ??
+
+  def check_is_triggered(self):
+    from monitor.models.Trigger import Trigger
+    triggers = Trigger.objects.filter(reminder=self)
+    self.is_triggered = True
+    for t in triggers:
+      if not t.check_is_triggered():
+        self.is_triggered = False
+        break
+    self.save()
+    return self.is_triggered
 
   def to_dict(self):
     from monitor.models.Trigger import Trigger

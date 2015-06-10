@@ -5,10 +5,12 @@ from django.core.management.base import BaseCommand, CommandError
 from stockman.settings import BASE_DIR
 
 from monitor.market_times import open_time, close_time
+
 from monitor.models.Config import Config
 from monitor.models.Symbol import Symbol
 from monitor.models.EoD import EoD
 from monitor.models.Intraday import Intraday
+from monitor.models.Reminder import Reminder
 
 
 class Command(BaseCommand):
@@ -75,6 +77,13 @@ class Command(BaseCommand):
         print e
       intraday_updates()
 
+    # TODO : this is a temporary thing; calling check_is_triggered()
+    # for all reminders here; this should be done separately for all
+    # intraday dependent triggers and EoD dependent triggers; and then
+    # the boolean of the reminders should be discovered in common here
+    for r in Reminder.objects.all():
+      r.check_is_triggered()
+
     try:
       last_stop,_ = Command.custom_config_update_or_create(
           subject=housekeeping_last_stop_config_subject,
@@ -93,6 +102,7 @@ def EoD_updates():
       EoD.append_latest(sym)
     except Exception as e:
       print 'problem updating EoD quote : {exception}'.format(exception=e)
+  # TODO : compute all reminders that depend on end of day quotes
   return None
 
 
@@ -102,6 +112,7 @@ def intraday_updates():
       Intraday.append_latest(sym)
     except Exception as e:
       print 'problem updating intraday quote : {exception}'.format(exception=e)
+  # TODO : commpute all reminders that depend on intraday quotes
   return None
 
 

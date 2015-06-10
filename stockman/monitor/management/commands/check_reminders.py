@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from monitor.models.Trigger import Trigger
+from monitor.models.Reminder import Reminder
 
 """
   This command will fetch the current live prices of
@@ -9,6 +10,6 @@ from monitor.models.Trigger import Trigger
 
 class Command(BaseCommand):
   def handle(self, *args, **options):
-    for t in Trigger.objects.all():
-      print t.is_triggered()
+    for r in Reminder.objects.all():
+      print r.check_is_triggered()
     return None

@@ -77,7 +77,7 @@ class RSI(object):
     self.find_RSI(quotes)
     return None
 
-  def is_triggered(self, trigger):
+  def check_is_triggered(self, trigger):
     # trig_val is a string because that is how the model describes it
     # convert to a float when comparing here; we don't need a try
     # except block because we have verified this conversion earlier
@@ -173,7 +173,7 @@ class Attribute(object):
       'self':RSI,
     }
   @staticmethod
-  def is_triggered(trigger):
+  def check_is_triggered(trigger):
     reminder  = trigger.reminder
     symbol    = trigger.symbol
     attrib    = trigger.attrib
@@ -210,7 +210,7 @@ class Attribute(object):
 
     attrib_obj.calculate()
     pickle.dump(attrib_obj, open(file_name, 'w'))
-    return attrib_obj.is_triggered(trigger)
+    return attrib_obj.check_is_triggered(trigger)
 
   # NOTE: thought of taking the common lines from
   # to_clean_optd() and get_form() using

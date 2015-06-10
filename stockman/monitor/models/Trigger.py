@@ -8,11 +8,13 @@ from monitor.models.Reminder import Reminder
 from monitor.attribute import Attribute
 
 class Trigger(models.Model):
-  reminder  = models.ForeignKey(Reminder)
-  symbol    = models.ForeignKey(Symbol)
-  attrib    = models.CharField(max_length=200)
-  trig_val  = models.CharField(max_length=30)
-  bias      = models.CharField(max_length=30)
+  reminder      = models.ForeignKey(Reminder)
+  symbol        = models.ForeignKey(Symbol)
+  attrib        = models.CharField(max_length=200)
+  trig_val      = models.CharField(max_length=30)
+  bias          = models.CharField(max_length=30)
+  is_triggered  = models.BooleanField(default=False)
+  attrib_cur_val= models.CharField(max_length=30, null=True)
 
   def __unicode__(self):
     return '{symbol} {attrib} {trig_val} {bias}'.format(
@@ -28,10 +30,14 @@ class Trigger(models.Model):
     trig_dict['attrib_options']= attribd.get('options')
     trig_dict['trig_val']      = self.trig_val
     trig_dict['bias']          = self.bias
+    trig_dict['attrib_cur_val']= self.attrib_cur_val
     return trig_dict
 
-  def is_triggered(self):
-    return Attribute.is_triggered(self)
+  def check_is_triggered(self):
+    self.is_triggered,val = Attribute.check_is_triggered(self)
+    self.attrib_cur_val = str(val)
+    self.save()
+    return self.is_triggered
 
   @staticmethod
   def append_new(
@@ -49,7 +55,7 @@ class Trigger(models.Model):
   def is_reminder_triggered(reminder):
     triggered = True
     for trigger in Trigger.objects.filter(reminder=reminder):
-      flag,val  = trigger.is_triggered()
+      flag,val  = trigger.check_is_triggered()
       if flag == False:
         triggered = False
         break

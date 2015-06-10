@@ -98,7 +98,8 @@ def get_triggered_reminders(request):
   # make some changes here to make sure that we spew out
   # proper html instead of just dicts; it may be easier
   # to do html based things here
-  rl = Reminder.triggered_reminders()
+  # rl = Reminder.triggered_reminders()
+  rl = Reminder.objects.filter(is_triggered=True)
   rdl = [] # reminder dict list
   for r in rl:
     rdl.append(r.to_dict())
