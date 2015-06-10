@@ -25,8 +25,8 @@ class EoD(models.Model):
 
   @staticmethod
   def append_latest(sym):
-    if datetime.now() < close_time:
-      return None
+    #~ if datetime.now() < close_time:
+    #~   return None
     current_quotes  = EoD.objects.filter(symbol=sym)
     if not current_quotes:
       # Symbol is being processed first time; fetch all
@@ -44,15 +44,15 @@ class EoD(models.Model):
     # There are some quotes for this symbol already;
     # assume that these are quotes from May 1st 2014
     # onwards and fetch the last close price
-    ld          = Picker.get_current(sym)
-    ld['time']  = ld.get('time').replace(
-        hour=0, minute=0, second=0, microsecond=0
-      )
-    eod = EoD(
-        symbol=sym, open_qt=ld.get('open'), close_qt=ld.get('close'),
-        high_qt=ld.get('high'), low_qt=ld.get('low'),
-        volume=ld.get('volume'), date=ld.get('time'),
-      )
-    eod.save()
+    #~ ld          = Picker.get_current(sym)
+    #~ ld['time']  = ld.get('time').replace(
+    #~     hour=0, minute=0, second=0, microsecond=0
+    #~   )
+    #~ eod = EoD(
+    #~     symbol=sym, open_qt=ld.get('open'), close_qt=ld.get('close'),
+    #~     high_qt=ld.get('high'), low_qt=ld.get('low'),
+    #~     volume=ld.get('volume'), date=ld.get('time'),
+    #~   )
+    #~ eod.save()
     return None
 

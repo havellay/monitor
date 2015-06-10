@@ -23,8 +23,7 @@ class Command(BaseCommand):
     """
     It is expected that there will only be one thread
     running this method; I don't think the database
-    operations done here are atomic because of how
-    far the read, assigns and save() are from eachother
+    operations done here are atomic
     """
     housekeeping_last_action_config_subject = 'house_keeping_last_action'
     EoD_update_config_predicate             = 'EoD_update'
@@ -58,10 +57,11 @@ class Command(BaseCommand):
               subject=housekeeping_last_action_config_subject,
               predicate=EoD_update_config_predicate,
             )
-          EoD_updates()
         except Exception as e:
           print 'error when performing EoD_updates'
           print e
+        EoD_updates()
+        # TODO : get rid of existing intraday quotes here ?
     else:
       print 'Market is open'
       print 'perform Intraday updates'
@@ -70,26 +70,38 @@ class Command(BaseCommand):
             subject=housekeeping_last_action_config_subject,
             predicate=Intraday_update_config_predicate,
           )
-        intraday_updates()
       except Exception as e:
         print 'error when performing intraday updates'
         print e
+      intraday_updates()
 
-    last_stop,_ = Command.custom_config_update_or_create(
-        subject=housekeeping_last_stop_config_subject,
-        predicate=datetime.now(),
-      )
+    try:
+      last_stop,_ = Command.custom_config_update_or_create(
+          subject=housekeeping_last_stop_config_subject,
+          predicate=datetime.now(),
+        )
+    except Exception as e:
+      print 'housekeepign problem with registering stop time'
+      print e
 
     return None
+  
 
 def EoD_updates():
   for sym in Symbol.objects.all():
-    EoD.append_latest(sym)
+    try:
+      EoD.append_latest(sym)
+    except Exception as e:
+      print 'problem updating EoD quote : {exception}'.format(exception=e)
   return None
+
 
 def intraday_updates():
   for sym in Symbol.objects.all():
-    Intraday.append_latest(sym)
+    try:
+      Intraday.append_latest(sym)
+    except Exception as e:
+      print 'problem updating intraday quote : {exception}'.format(exception=e)
   return None
 
 

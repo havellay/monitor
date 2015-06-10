@@ -24,5 +24,5 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
     
-    url(r'^(?P<dname>[a-z]+)/(?P<fname>[a-z.]+)', views.provide_script),
+    url(r'^(?P<dname>[a-zA-Z]+)/(?P<fname>[a-zA-Z.]+)', views.provide_script),
 )

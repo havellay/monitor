@@ -6,7 +6,7 @@ class Symbol(models.Model):
       max_length=30, blank=True, verbose_name='Yahoo Symbol', unique=True,
     )
   g_symbol    = models.CharField(
-      max_length=30, blank=True, verbose_name='Google Symbol', unique=True,
+      max_length=30, blank=True, verbose_name='Google Symbol', # unique=True,
     )
   nse_symbol  = models.CharField(
       max_length=30, blank=True, verbose_name='NSE India Symbol', unique=True,

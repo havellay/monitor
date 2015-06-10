@@ -1,4 +1,13 @@
-<div id="reminder_count">{{ rsdl_count }}</div>
-{% for rsd in rsdl %}
-  <div id="{{rsd.element_id}}">{{ rsd.string }}</div>
+{% for rd in rdl %}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4>{{ rd.symbol }}</h4>
+    </div>
+    <div class="panel-body">
+      {% for key,val in rd.items %}
+        <p>{{ key }} {{ val }}</p>
+      {% endfor %}
+    </div>
+  </div>
+  monitor_tag_split_here
 {% endfor %}

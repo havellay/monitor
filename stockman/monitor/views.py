@@ -73,6 +73,7 @@ def insert_reminder(request):
       reminder  = Reminder.append_new(user=user)
       attrib    = Attribute.optd_to_file_name(c_optd)
       for x in attribute_dicts:
+        import ipdb; ipdb.set_trace()
         Trigger.append_new(
             reminder=reminder, symbol=symbol, attrib=attrib,
             trig_val=c_optd.get('trig_val'), bias=c_optd.get('bias'),
@@ -94,19 +95,18 @@ def get_attrib_form(request):
 
 
 def get_triggered_reminders(request):
+  # make some changes here to make sure that we spew out
+  # proper html instead of just dicts; it may be easier
+  # to do html based things here
   rl = Reminder.triggered_reminders()
-  rsdl = [] # reminder dict string list
-  i = 0
+  rdl = [] # reminder dict list
   for r in rl:
-    rsdl.append({'string':json.dumps(r.to_dict())})
-    rsdl[-1]['element_id'] = 'reminder_'+str(i)
-    i+=1
+    rdl.append(r.to_dict())
   return render(
       request,
       'monitor/get_triggered_reminders.html',
       {
-        'rsdl':rsdl,
-        'rsdl_count':len(rsdl),
+        'rdl':rdl,
       },
     )
 

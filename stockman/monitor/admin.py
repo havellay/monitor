@@ -12,8 +12,8 @@ from models.Trigger import Trigger
 from models.Config import Config
 
 class SymbolAdmin(admin.ModelAdmin):
-  list_display  = ('name', 'y_symbol', 'g_symbol')
-  search_fields = ('name', 'y_symbol', 'g_symbol')
+  list_display  = ('name', 'y_symbol', 'g_symbol', 'nse_symbol')
+  search_fields = ('name', 'y_symbol', 'g_symbol', 'nse_symbol')
 
 admin.site.register(Symbol, SymbolAdmin)
 admin.site.register(EoD)

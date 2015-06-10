@@ -83,15 +83,14 @@ class RSI(object):
     # except block because we have verified this conversion earlier
     # in to_clean_optd()
     trig_val  = float(trigger.trig_val)
+    print '{trigger} current value is {val}'.format(
+        trigger=trigger, val=self.values[-1]
+      )
+    if self.values[-1] == 0:    # this is not the right way to do things; fix this
+      return (False, 0)
     if trigger.bias == '+' and self.values[-1] > trig_val:
-      print '{trigger} current value is {val}'.format(
-          trigger=trigger, val=self.values[-1]
-        )
       return (True, self.values[-1])
     if trigger.bias == '-' and self.values[-1] <= trig_val:
-      print '{trigger} current value is {val}'.format(
-          trigger=trigger, val=self.values[-1]
-        )
       return (True, self.values[-1])
     return (False, 0)
 
