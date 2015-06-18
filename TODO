@@ -43,6 +43,8 @@ walk through the code and add try except blocks wherever applicable
 
 Find the right way of delivering js, css, images and fonts;
 
-is it alright for is_triggered to be called by a view ??
-
 why don't we get any prices for 'PNB' ?
+
+make a web news crawler.
+
+try MACD and RSI crossover

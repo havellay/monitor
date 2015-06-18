@@ -3,13 +3,13 @@ from django.contrib import admin
 # TODO find a better way to do the following :
 #   like from models import ....
 
-from models.Symbol import Symbol
-from models.EoD import EoD
-from models.Intraday import Intraday
-from models.User import User
-from models.Reminder import Reminder
-from models.Trigger import Trigger
-from models.Config import Config
+from monitor.models.Symbol import Symbol
+from monitor.models.EoD import EoD
+from monitor.models.Intraday import Intraday
+from monitor.models.User import User
+from monitor.models.Reminder import Reminder
+from monitor.models.Trigger import Trigger
+from monitor.models.Config import Config
 
 class SymbolAdmin(admin.ModelAdmin):
   list_display  = ('name', 'y_symbol', 'g_symbol', 'nse_symbol')

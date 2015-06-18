@@ -15,17 +15,15 @@ class NSE_picker(object):
           NSE_picker.url.format(symbol=symbol)).content
       info_dict   = json.loads(info_string)
       return {
-          'open':float(0),
-          'close':float(info_dict['data'][0]['lastPrice'].replace(',','')),
-          'high':float(0),
-          'low':float(0),
-          'quote':float(info_dict['data'][0]['lastPrice'].replace(',','')),
+          'open'  :float(0),
+          'close' :float(info_dict['data'][0]['lastPrice'].replace(',','')),
+          'high'  :float(0),
+          'low'   :float(0),
+          'quote' :float(info_dict['data'][0]['lastPrice'].replace(',','')),
           'volume':float(
-              info_dict['data'][0]['quantityTraded'].replace(',','')
-            ),
-          'time':datetime.strptime(
-              info_dict['lastUpdateTime'], '%d-%b-%Y %H:%M:%S'
-            ),
+              info_dict['data'][0]['quantityTraded'].replace(',','')),
+          'time'  :datetime.strptime(
+              info_dict['lastUpdateTime'], '%d-%b-%Y %H:%M:%S'),
         }
     except Exception as e:
       print 'NSE_picker : get_current : some problem occurred'

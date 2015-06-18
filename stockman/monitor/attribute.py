@@ -51,7 +51,10 @@ class RSI(object):
 
     av_gain = 1.0 * av_gain / self.options.get('time_param')
     av_loss = 1.0 * av_loss / self.options.get('time_param')
-    rs      = av_gain / (-1*av_loss)
+    if av_loss == 0:
+      rs      = 99999999999
+    else:
+      rs      = av_gain / (-1*av_loss)
     self.values.append(100 - 100/(1+rs))
 
     for x in xrange(self.options.get('time_param'), len(quotes)):
@@ -60,9 +63,13 @@ class RSI(object):
         av_gain = multiplier*quote_diff + (1-multiplier)*av_gain
       else:
         av_loss = multiplier*quote_diff + (1-multiplier)*av_loss
-      rs    = av_gain / (-1*av_loss)
+      if av_loss == 0:
+        rs    = 99999999999
+      else:
+        rs    = av_gain / (-1*av_loss)
       self.values.append(100 - 100/(1+rs))
 
+    self.quotes = quotes[:] # Alex Martelli =)
     return None
 
   def calculate(self):
@@ -83,9 +90,9 @@ class RSI(object):
     # except block because we have verified this conversion earlier
     # in to_clean_optd()
     trig_val  = float(trigger.trig_val)
-    print '{trigger} current value is {val}'.format(
-        trigger=trigger, val=self.values[-1]
-      )
+    # print '{trigger} current value is {val}'.format(
+    #     trigger=trigger, val=self.values[-1]
+    #   )
     if self.values[-1] == 0:    # this is not the right way to do things; fix this
       return (False, 0)
     if trigger.bias == '+' and self.values[-1] > trig_val:
@@ -93,6 +100,66 @@ class RSI(object):
     if trigger.bias == '-' and self.values[-1] <= trig_val:
       return (True, self.values[-1])
     return (False, 0)
+
+  def expected_returns(self, trigger=None, action='buy'):
+    # action tells what action is taken when this attribute
+    # is triggered; options are 'buy' and 'sell'
+    # make sure that self.values are available when
+    # calculating expected returns. If not available,
+    # call check_is_triggered() ?
+    try:
+      # print len(self.values)
+      # print len(self.quotes)
+      a = len(self.quotes)
+    except Exception as e:
+      print e
+      return None
+
+    from decimal import *
+    if not trigger:
+      return None
+
+    trig_val = float(trigger.trig_val)
+    if trigger.bias == '-':
+      sign = -1
+    else:
+      sign = 1
+
+    holding = Decimal(0.0)
+    worth = Decimal(0.0)
+
+    loss_trans = 0
+    profit_trans = 0
+    active_duration = 0
+
+    for i in xrange(len(self.values)-1):
+      if action == 'buy':
+        if holding:
+          active_duration += 1
+        if not holding and sign*self.values[i] > sign*float(trigger.trig_val):
+          # triggered perform the action with the price
+          holding = self.quotes[i] 
+          worth -= self.quotes[i]
+        elif holding and holding*Decimal(1.2) <= self.quotes[i]:
+          # holding and have a 10 % profit; book it
+          holding = 0
+          worth += self.quotes[i]
+          profit_trans += 1
+        elif holding and holding*Decimal(0.98) > self.quotes[i]:
+          # holding and have 5 % loss; book it
+          holding = 0
+          worth += self.quotes[i]
+          loss_trans += 1
+
+    if holding:
+      holding = 0
+      worth += self.quotes[-1]
+
+    print '{symbol} final worth is {worth}; P {p} L {l} A {a}'.format(
+        symbol=trigger.symbol.name,worth=worth,
+        p=profit_trans,l=loss_trans,a=active_duration)
+
+    return worth
 
   @staticmethod
   def to_clean_optd(optd):
@@ -174,11 +241,8 @@ class Attribute(object):
     }
   @staticmethod
   def check_is_triggered(trigger):
-    reminder  = trigger.reminder
     symbol    = trigger.symbol
     attrib    = trigger.attrib
-    trig_val  = trigger.trig_val
-    bias      = trigger.bias
 
     """
     converting the 'attrib' string to json would
@@ -236,4 +300,28 @@ class Attribute(object):
     if attrib:
       return attrib.optd_to_file_name(optd)
     return None
+
+  @staticmethod
+  def expected_returns(trigger=None, action='buy'):
+    # this method is very similar to check_is_triggered() because
+    # this has to be unhacked; figure out a nice place to put this
+    # that wouldn't be too wasteful
+    symbol    = trigger.symbol
+    attrib    = trigger.attrib
+    attrib_info_dict  = json.loads(attrib)
+
+    file_name = BASE_DIR+'/pickles/'+str(symbol.id)+'_'+attrib+'.pickle'
+    file_name = file_name.replace(' ','')
+
+    if os.path.isfile(file_name):
+      # 'attrib_obj' is an instance of RSI() etc.
+      attrib_obj  = pickle.load(open(file_name, 'r'))
+    else:
+      # compute the attrib and store in pickle
+      attrib_obj  = Attribute.directory.get(attrib_info_dict.get('root_name'))()
+      attrib_obj.set_options(attrib_info_dict.get('options'))
+
+    attrib_obj.calculate()
+    pickle.dump(attrib_obj, open(file_name, 'w'))
+    return attrib_obj.expected_returns(trigger=trigger, action=action)
 
